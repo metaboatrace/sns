@@ -1,6 +1,6 @@
 'use client';
 
-import { authenticate } from '@/lib/actions/auth';
+import { authenticate } from '../actions';
 import {
   AtSymbolIcon,
   KeyIcon,
