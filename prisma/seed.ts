@@ -16,9 +16,9 @@ async function main() {
 }
 
 main()
-  .catch(e => {
-    throw e
+  .catch((e) => {
+    throw e;
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   });

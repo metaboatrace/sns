@@ -1,5 +1,5 @@
-import Button from "@/components/ui/Button";
-import { ArrowRightIcon } from "@heroicons/react/20/solid";
+import Button from '@/components/ui/Button';
+import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useFormStatus } from 'react-dom';
 
 export default function LoginButton() {
