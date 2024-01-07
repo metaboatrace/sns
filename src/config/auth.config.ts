@@ -13,8 +13,7 @@ export const authConfig = {
       const isOnDashboard = nextUrl.pathname.startsWith('/admin/dashboard');
       if (isOnDashboard) {
         return isLoggedIn;
-      }
-      else if (isLoggedIn) {
+      } else if (isLoggedIn) {
         return Response.redirect(new URL('/admin/dashboard', nextUrl));
       }
       return true;

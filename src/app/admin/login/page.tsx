@@ -1,7 +1,5 @@
-import Container from "@/features/admin/login";
+import Container from '@/features/admin/login';
 
 export default function Page() {
-  return (
-    <Container />
-  );
+  return <Container />;
 }

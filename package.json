@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "lint": "next lint",
+    "prepare": "husky install",
+    "prettier": "prettier --write --ignore-unknown .",
+    "start": "next start"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --fix",
+    "*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
@@ -28,13 +31,22 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vercel/style-guide": "^5.1.0",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
     "postcss": "^8",
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "prisma": "^5.7.1",
     "tailwindcss": "^3.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }

@@ -9,8 +9,8 @@ async function getAdmin(email: string) {
   try {
     const admin = await prisma.admin.findUnique({
       where: {
-        email: email
-      }
+        email: email,
+      },
     });
     return admin;
   } catch (error) {
