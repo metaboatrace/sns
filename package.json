@@ -6,8 +6,13 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "prepare": "husky install",
     "prettier": "prettier --write --ignore-unknown .",
     "start": "next start"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --fix",
+    "*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
