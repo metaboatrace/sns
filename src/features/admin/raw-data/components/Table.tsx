@@ -1,19 +1,28 @@
-import { off } from 'process';
 import { EditButton } from './buttons';
-import { getRaces } from '@/lib/api/graphql/race';
+import getRaces from '@/features/admin/raw-data/api/getRaces';
 
-export default async function RacesTable({
-  query,
+export default async function Table({
+  date,
+  stadiumTelCode,
   currentPage,
   limit,
 }: {
-  query: string;
+  date: string | undefined;
+  stadiumTelCode: string | undefined;
   currentPage: number;
   limit: number;
 }) {
   const offset = (currentPage - 1) * limit;
 
-  const races = await getRaces(offset, limit);
+  const races = await getRaces(offset, limit, date, stadiumTelCode);
+
+  if (!races || races.length === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-40">
+        No races found.
+      </div>
+    );
+  }
 
   return (
     <div className="6 flow-root">
@@ -40,26 +49,25 @@ export default async function RacesTable({
             </tr>
           </thead>
           <tbody className="bg-white">
-            {races &&
-              races.map((race, index: number) => (
-                <tr key={index} className="odd:bg-gray-50">
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {race.date}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{`${race.stadium.tel_code}# ${race.stadium.name}`}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {race.race_number}R
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {race.title}
-                  </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-end gap-3">
-                      <EditButton id={String(index)} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            {races.map((race, index: number) => (
+              <tr key={index} className="odd:bg-gray-50">
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  {race.date}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{`${race.stadium.tel_code}# ${race.stadium.name}`}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  {race.race_number}R
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  {race.title}
+                </td>
+                <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                  <div className="flex justify-end gap-3">
+                    <EditButton id={String(index)} />
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
