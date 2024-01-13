@@ -1,13 +1,13 @@
 'use client';
 
-import { HomeIcon, CircleStackIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
 const links = [
   { name: 'Home', href: '/admin/dashboard', icon: HomeIcon },
-  { name: 'Raw Data', href: '/admin/raw-data', icon: CircleStackIcon },
+  { name: 'Race Data', href: '/admin/raw-data/races', icon: RocketLaunchIcon },
 ];
 
 export default function NavLinks() {
