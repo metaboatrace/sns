@@ -1,7 +1,7 @@
 import { EditButton } from './buttons';
-import getRaces from '@/features/admin/raw-data/api/getRaces';
+import { getRaces } from '@/features/admin/raw-data/races/api';
 
-export default async function Table({
+export async function RaceList({
   date,
   stadiumTelCode,
   currentPage,

@@ -6,7 +6,7 @@ import {
   KeyIcon,
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
-import LoginButton from './Button';
+import { LoginButton } from './buttons';
 import { useFormState } from 'react-dom';
 
 export default function LoginForm() {

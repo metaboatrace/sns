@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { getClient } from '@/lib/apolloClient';
+import { getClient } from './apollo';
 import { Races } from '@/generated/graphql';
 
 export async function getRaceCount() {

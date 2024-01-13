@@ -1,9 +1,12 @@
 import {
   getRaceCount as getRaceCountFromGql,
   getRaceCountByDate,
+  getRaces as getRacesFromGql,
+  getRacesWithFilters,
+  getRacesByDate,
 } from '@/lib/api/graphql/race';
 
-export default async function getRaceCount(
+export async function getRaceCount(
   date: string | undefined,
   stadiumTelCode?: string | undefined,
 ) {
@@ -18,4 +21,28 @@ export default async function getRaceCount(
     const countData = await getRaceCountFromGql();
     return countData.races_aggregate.aggregate.count;
   }
+}
+
+export async function getRaces(
+  offset: number,
+  limit: number,
+  date?: string,
+  stadiumTelCode?: string | undefined,
+) {
+  let races;
+
+  if (date) {
+    races = stadiumTelCode
+      ? await getRacesWithFilters(
+          offset,
+          limit,
+          date,
+          parseInt(stadiumTelCode, 10),
+        )
+      : await getRacesByDate(offset, limit, date);
+  } else {
+    races = await getRacesFromGql(offset, limit);
+  }
+
+  return races;
 }
