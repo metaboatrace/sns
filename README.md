@@ -47,6 +47,8 @@ pnpm dev
 
 `http://localhost:3000` で開発サーバーが起動する。
 
+認証（Supabase Auth + Google OAuth）の設定手順は [docs/authentication-setup.md](docs/authentication-setup.md) を参照。
+
 ## 関連リポジトリ
 
 | リポジトリ | 概要 |
