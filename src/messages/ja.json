@@ -1,0 +1,19 @@
+{
+    "AuthStatusDisplay": {
+        "account": "アカウントメニュー",
+        "settings": "設定",
+        "signOut": "ログアウト",
+        "signIn": "ログイン"
+    },
+    "Header": {
+        "title": "Boatrace SNS"
+    },
+    "Footer": {
+        "copyright": "Boatrace SNS"
+    },
+    "Home": {
+        "title": "METABOATRACE",
+        "description": "ボートレースの情報をリアルタイムで確認できるプラットフォーム。",
+        "raceList": "レース一覧"
+    }
+}

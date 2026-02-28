@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { LogOut, Settings, UserIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function AuthStatusDisplay() {
     const { user, isLoading, signOut } = useAuth();
+    const t = useTranslations('AuthStatusDisplay');
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +33,7 @@ export function AuthStatusDisplay() {
                 <button
                     type="button"
                     className="flex items-center justify-center rounded-full border-2 border-primary text-primary hover:bg-primary/10 transition-colors p-[2px]"
-                    aria-label="アカウントメニュー"
+                    aria-label={t('account')}
                     aria-expanded={isOpen}
                     aria-haspopup="true"
                     onClick={() => setIsOpen((prev) => !prev)}
@@ -48,7 +50,7 @@ export function AuthStatusDisplay() {
                                 onClick={() => setIsOpen(false)}
                             >
                                 <Settings className="h-4 w-4" />
-                                設定
+                                {t('settings')}
                             </Link>
                             <button
                                 type="button"
@@ -59,7 +61,7 @@ export function AuthStatusDisplay() {
                                 }}
                             >
                                 <LogOut className="h-4 w-4" />
-                                ログアウト
+                                {t('signOut')}
                             </button>
                         </div>
                     </div>
@@ -73,7 +75,7 @@ export function AuthStatusDisplay() {
             href="/sign-in"
             className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
         >
-            ログイン
+            {t('signIn')}
         </Link>
     );
 }
