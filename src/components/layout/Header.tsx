@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AuthStatusDisplay } from './AuthStatusDisplay';
 
 export function Header() {
   return (
@@ -13,7 +14,7 @@ export function Header() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            {/* TODO: Add Auth status display */}
+            <AuthStatusDisplay />
           </div>
         </div>
       </div>
