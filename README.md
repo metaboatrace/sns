@@ -37,20 +37,119 @@
 | UI | [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) | ユーティリティファーストCSS + コピーペースト型コンポーネント |
 | パッケージマネージャー | [pnpm](https://pnpm.io/) | 高速なインストール |
 
-## セットアップ
+## 前提条件
+
+以下のツールが必要です。
+
+| ツール | 用途 |
+|---|---|
+| [Node.js](https://nodejs.org/) 24 | ランタイム。[Volta](https://volta.sh/) で管理 |
+| [pnpm](https://pnpm.io/) | パッケージマネージャー |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Supabase ローカル開発で必須 |
+| [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) | ローカル Supabase の起動・管理。`brew install supabase/tap/supabase` でインストール |
+
+## ローカル開発セットアップ
+
+### 1. リポジトリのクローンと依存関係のインストール
 
 ```bash
-# Node.js 24 (Volta で管理: https://volta.sh/)
+git clone https://github.com/metaboatrace/sns.git
+cd sns
 pnpm install
+```
+
+### 2. 環境変数の設定
+
+`.env.example` を `.env.local` にコピーします。
+
+```bash
+cp .env.example .env.local
+```
+
+### 3. ローカル Supabase の起動
+
+Docker Desktop が起動していることを確認し、以下を実行します。
+
+```bash
+supabase start
+```
+
+起動が完了すると、各サービスの URL やキーが出力されます。出力に含まれる `Publishable` の値を `.env.local` の `NEXT_PUBLIC_SUPABASE_ANON_KEY` に設定してください。
+
+```
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase start で出力された Publishable key>
+```
+
+### 4. Google OAuth の設定（任意）
+
+ローカルで Google ログインを使う場合は、Google Cloud Console で取得した OAuth クレデンシャルを `supabase/.env` に設定します。
+
+```
+SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=<Google Cloud Console の Client ID>
+SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<Google Cloud Console の Client Secret>
+```
+
+`supabase/.env.example` をコピーして使えます。
+
+```bash
+cp supabase/.env.example supabase/.env
+```
+
+これらの値は `supabase/config.toml` の `env()` 関数経由でローカル Supabase に読み込まれます。Google OAuth の詳しい設定手順は [docs/authentication-setup.md](docs/authentication-setup.md) を参照してください。
+
+#### ローカル用リダイレクト URI の追加
+
+Google Cloud Console でローカル開発用のリダイレクト URI を登録する必要があります。
+
+1. [Google Cloud Console](https://console.cloud.google.com/) > **APIs & Services** > **Credentials** を開く
+2. 該当の OAuth 2.0 クライアント ID をクリック
+3. **Authorized redirect URIs** に以下を追加する
+
+```
+http://127.0.0.1:54321/auth/v1/callback
+```
+
+本番用の `https://<your-project-ref>.supabase.co/auth/v1/callback` はそのまま残してください。
+
+> **注意:** この設定を行わないと、Google ログイン時に `redirect_uri_mismatch` エラーが発生します。
+
+ローカル環境では Supabase Auth が `localhost:54321` で動作するため、Google からの OAuth コールバックはローカルの Supabase に送られます。本番環境では `https://<your-project-ref>.supabase.co` がコールバック先になります。
+
+### 5. 開発サーバーの起動
+
+```bash
 pnpm dev
 ```
 
-`http://localhost:3000` で開発サーバーが起動する。
+http://localhost:3000 でアクセスできます。
 
-認証（Supabase Auth + Google OAuth）の設定手順は [docs/authentication-setup.md](docs/authentication-setup.md) を参照。
+### ローカル Supabase の停止
+
+```bash
+supabase stop
+```
+
+## 環境変数
+
+`.env.example` にテンプレートがあります。ローカル開発と本番環境で設定値が異なるため、以下の表を参照してください。
+
+| 環境変数 | ローカル | 本番 | 説明 |
+|---|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | `http://127.0.0.1:54321` | Supabase ダッシュボードの値 | Supabase API の URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `supabase start` 出力の Publishable の値 | Supabase ダッシュボードの値 | Supabase の Publishable キー |
+| `DATABASE_URL` | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` | Supabase の接続文字列 | Drizzle ORM 用 |
+| `HASURA_GRAPHQL_ENDPOINT` | `http://localhost:8080/v1/graphql` | 本番エンドポイント | Hasura GraphQL API |
+| `HASURA_GRAPHQL_ADMIN_SECRET` | ローカル Hasura の値 | 本番の値 | Hasura 管理シークレット |
+
+> 本番環境では、Google OAuth のクレデンシャルは Supabase ダッシュボード（Authentication > Providers > Google）で直接設定するため、アプリ側の環境変数は不要です。ローカル開発では `supabase/.env` に設定します（`supabase/.env.example` を参照）。これらはローカルの Supabase インスタンス（`supabase start`）が `config.toml` の `env()` 関数経由で読み込むためにのみ必要です。
 
 ## 関連リポジトリ
 
 | リポジトリ | 概要 |
 |---|---|
 | [metaboatrace/crawlers](https://github.com/metaboatrace/crawlers) | データ収集（スクレイピング）+ Hasura GraphQL。OriginData の提供元 |
+
+## 関連ドキュメント
+
+- [docs/architecture.md](docs/architecture.md) - アーキテクチャ詳細
+- [docs/authentication-setup.md](docs/authentication-setup.md) - 認証セットアップ手順
