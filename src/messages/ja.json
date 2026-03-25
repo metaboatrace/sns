@@ -15,5 +15,35 @@
         "title": "METABOATRACE",
         "description": "ボートレースの情報をリアルタイムで確認できるプラットフォーム。",
         "raceList": "レース一覧"
+    },
+    "setupUsername": {
+        "title": "ユーザー名の設定",
+        "usernameLabel": "ユーザー名",
+        "usernameDescription": "プロフィールURLに使用されます。英小文字、数字、アンダースコアが使えます。",
+        "usernamePlaceholder": "例: taro_123",
+        "cannotChange": "ユーザー名は後から変更できません",
+        "inappropriateWarning": "不適切なユーザー名は予告なく変更される場合があります",
+        "usernameHint": "2〜20文字、英小文字で始めてください",
+        "displayNameLabel": "表示名",
+        "displayNameDescription": "他のユーザーに表示される名前です。未入力の場合はユーザー名が使用されます。",
+        "displayNamePlaceholder": "例: 太郎",
+        "displayNameCanChange": "表示名は後から変更できます",
+        "displayNameMaxLength": "最大50文字",
+        "submit": "設定する",
+        "submitting": "設定中...",
+        "validation": {
+            "tooShort": "ユーザー名は2文字以上で入力してください",
+            "tooLong": "ユーザー名は20文字以内で入力してください",
+            "invalidFormat": "英小文字、数字、アンダースコアのみ使用できます（先頭は英小文字）",
+            "reserved": "このユーザー名は使用できません",
+            "taken": "このユーザー名は既に使用されています",
+            "alreadySet": "ユーザー名は既に設定されています",
+            "rateLimited": "リクエストが多すぎます。しばらく待ってからお試しください",
+            "error": "エラーが発生しました。もう一度お試しください"
+        }
+    },
+    "mypage": {
+        "title": "マイページ",
+        "welcome": "ようこそ、{username}さん"
     }
 }
