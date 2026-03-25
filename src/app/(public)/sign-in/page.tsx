@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
+import { createClient } from '@/lib/supabase/server';
 import { AuthErrorMessage } from './_components/AuthErrorMessage';
 import { GoogleSignInButton } from './_components/GoogleSignInButton';
 
@@ -14,6 +16,12 @@ export const metadata: Metadata = {
 };
 
 export default async function SignInPage({ searchParams }: Props) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    redirect('/mypage');
+  }
+
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     throw new Error(
       'Supabase environment variables are not configured. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
