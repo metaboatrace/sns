@@ -6,6 +6,58 @@
 - ボートレースのレースデータに対するコメント・感想の投稿、ユーザー間のフォロー・いいね等のリアクション機能
 - UGC（ユーザー生成コンテンツ）によるサービスのスケールを目指す
 
+## 機能
+
+### 認証・アカウント管理
+
+| 機能 | 状態 | 説明 |
+|---|---|---|
+| Google OAuth ログイン | ✅ | Supabase Auth 経由の Google ログイン |
+| ユーザー名設定 | ✅ | 初回ログイン時にユーザー名・表示名を設定 |
+| ユーザー名バリデーション | ✅ | 形式チェック（2〜20文字、英小文字開始）、予約語チェック |
+| Rate Limiting | ✅ | IP ベース + ユーザーID ベースの二段構え |
+| Lame-name フィルタ | ✅ | 不適切なユーザー名の部分一致ブロック |
+| RLS ポリシー | ✅ | profiles テーブルの行レベルセキュリティ |
+| BAN 制御 | ✅ | BAN ユーザーの保護ルートアクセス拒否 |
+
+## 認証フロー
+
+### サインアップ（新規ユーザー）
+
+```
+Google OAuth ログイン
+    ↓
+Supabase Auth コールバック（/auth/callback）
+    ↓
+profiles テーブルにレコードなし
+    ↓
+/mypage/setup-username にリダイレクト
+    ↓
+ユーザー名・表示名を入力して送信
+    ↓
+POST /api/username でプロフィール作成
+    ↓
+/mypage にリダイレクト
+```
+
+### サインイン（既存ユーザー）
+
+```
+Google OAuth ログイン
+    ↓
+Supabase Auth コールバック（/auth/callback）
+    ↓
+profiles テーブルにレコードあり
+    ↓
+/mypage にリダイレクト
+```
+
+### ルーティング制御
+
+- `(protected)` レイアウト: 未認証 → `/sign-in` にリダイレクト、BAN → `/banned` にリダイレクト
+- `(provisional)` レイアウト: プロフィール設定済み → `/mypage` にリダイレクト
+- `(confirmed)` レイアウト: プロフィール未設定 → `/mypage/setup-username` にリダイレクト
+
 ## アーキテクチャ
 
 ```
@@ -36,6 +88,40 @@
 | ORM | [Drizzle](https://orm.drizzle.team/) | Vercelサーバーレス環境でのコールドスタート性能 |
 | UI | [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) | ユーティリティファーストCSS + コピーペースト型コンポーネント |
 | パッケージマネージャー | [pnpm](https://pnpm.io/) | 高速なインストール |
+
+## ディレクトリ構成
+
+```
+src/
+├── app/
+│   ├── (public)/          # 未認証でもアクセス可能なページ
+│   │   ├── sign-in/       # サインインページ
+│   │   └── banned/        # BAN通知ページ
+│   ├── (protected)/       # 認証必須ページ（未認証→/sign-inリダイレクト）
+│   │   └── mypage/
+│   │       ├── (provisional)/  # プロフィール未設定ユーザー用
+│   │       │   └── setup-username/
+│   │       └── (confirmed)/    # プロフィール設定済みユーザー用
+│   ├── api/
+│   │   └── username/      # ユーザー名登録API
+│   ├── auth/
+│   │   └── callback/      # OAuth/OTP コールバック
+│   └── admin/             # 管理者ページ
+├── components/
+│   ├── layout/            # Header, Footer, AuthStatusDisplay
+│   └── ui/                # shadcn/ui コンポーネント
+├── lib/
+│   ├── db/                # Drizzle ORM スキーマ・接続
+│   ├── supabase/          # Supabase クライアント（server, client, middleware）
+│   ├── username.ts        # ユーザー名バリデーション
+│   ├── reserved-usernames.ts  # 予約ユーザー名リスト
+│   ├── lame-name.ts       # 不適切名フィルタ（server-only）
+│   ├── rate-limit.ts      # ユーザーID ベース Rate Limiting
+│   ├── rate-limit-ip.ts   # IP ベース Rate Limiting
+│   └── auth.ts            # 認証ユーティリティ
+└── messages/
+    └── ja.json            # 日本語メッセージ
+```
 
 ## 前提条件
 
@@ -128,6 +214,42 @@ http://localhost:3000 でアクセスできます。
 ```bash
 supabase stop
 ```
+
+## テスト
+
+```bash
+# 全テスト実行
+pnpm test
+
+# ウォッチモード
+pnpm test:watch
+```
+
+## データベース
+
+### マイグレーション
+
+```bash
+# マイグレーションファイル生成
+pnpm drizzle-kit generate
+
+# マイグレーション実行
+pnpm db:run-migrate
+
+# Drizzle Studio（DBブラウザ）
+pnpm db:studio
+```
+
+### テーブル
+
+| テーブル | 説明 |
+|---|---|
+| `profiles` | ユーザープロフィール（username, displayName, avatarUrl, bio 等） |
+| `rate_limit_events` | Rate Limiting イベント記録 |
+
+### RLS ポリシー
+
+profiles テーブルと rate_limit_events テーブルに Row Level Security を適用。詳細は `supabase/migrations/20260325104121_rls_policies.sql` を参照。
 
 ## 環境変数
 
