@@ -3,12 +3,11 @@ import { eq } from 'drizzle-orm';
 import { db, profiles } from '@/lib/db';
 import { createClient } from '@/lib/supabase/server';
 import { validateUsername } from '@/lib/username';
+import { isLameName } from '@/lib/lame-name';
 import { getClientIp, checkRateLimitByIp } from '@/lib/rate-limit-ip';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
-  // TODO: Lame-name filtering
-
   // IP-based rate limiting (before auth)
   const clientIp = getClientIp(request);
   const ipCheck = checkRateLimitByIp(clientIp, 'setupUsername', 10, 300_000);
@@ -51,6 +50,10 @@ export async function POST(request: Request) {
   const validationError = validateUsername(username);
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 400 });
+  }
+
+  if (isLameName(username)) {
+    return NextResponse.json({ error: 'username_inappropriate' }, { status: 400 });
   }
 
   // Check if the user already has a profile

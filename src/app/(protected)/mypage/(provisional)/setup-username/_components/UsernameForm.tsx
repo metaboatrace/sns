@@ -16,6 +16,7 @@ export function UsernameForm() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   function getValidationMessage(errorKey: string): string {
     switch (errorKey) {
@@ -25,6 +26,7 @@ export function UsernameForm() {
       case 'reserved': return t('validation.reserved');
       case 'username_taken': return t('validation.taken');
       case 'username_already_set': return t('validation.alreadySet');
+      case 'username_inappropriate': return t('validation.inappropriate');
       case 'rate_limited': return t('validation.rateLimited');
       default: return t('validation.error');
     }
@@ -111,7 +113,23 @@ export function UsernameForm() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <Button type="submit" disabled={isSubmitting}>
+      <div className="flex items-start gap-2">
+        <input
+          id="agreedToTerms"
+          type="checkbox"
+          checked={agreedToTerms}
+          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          className="mt-1"
+        />
+        <label htmlFor="agreedToTerms" className="text-sm">
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline">
+            {t('termsLink')}
+          </a>
+          {t('agreeToTerms')}
+        </label>
+      </div>
+
+      <Button type="submit" disabled={isSubmitting || !agreedToTerms}>
         {isSubmitting ? t('submitting') : t('submit')}
       </Button>
     </form>

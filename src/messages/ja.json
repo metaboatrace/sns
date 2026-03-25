@@ -1,4 +1,8 @@
 {
+    "banned": {
+        "title": "アカウント利用停止",
+        "description": "このアカウントは利用規約違反により利用停止されています。"
+    },
     "AuthStatusDisplay": {
         "account": "アカウントメニュー",
         "settings": "設定",
@@ -29,6 +33,8 @@
         "displayNamePlaceholder": "例: 太郎",
         "displayNameCanChange": "表示名は後から変更できます",
         "displayNameMaxLength": "最大50文字",
+        "agreeToTerms": "利用規約に同意する",
+        "termsLink": "利用規約",
         "submit": "設定する",
         "submitting": "設定中...",
         "validation": {
@@ -38,6 +44,7 @@
             "reserved": "このユーザー名は使用できません",
             "taken": "このユーザー名は既に使用されています",
             "alreadySet": "ユーザー名は既に設定されています",
+            "inappropriate": "このユーザー名は使用できません",
             "rateLimited": "リクエストが多すぎます。しばらく待ってからお試しください",
             "error": "エラーが発生しました。もう一度お試しください"
         }
