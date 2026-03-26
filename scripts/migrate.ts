@@ -1,4 +1,11 @@
-import 'dotenv/config';
+// This script runs outside of Next.js, so .env.local is not automatically loaded.
+// Use dotenv explicitly with NODE_ENV to determine which env file to load.
+import dotenv from 'dotenv';
+
+dotenv.config({
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.local',
+});
+
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { readdirSync, readFileSync } from 'fs';
