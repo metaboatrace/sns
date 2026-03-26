@@ -1,41 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-
 import { ConfirmationDialog } from '../../_components/ConfirmationDialog';
+import { useConfirmationAction } from '../../_hooks/useConfirmationAction';
 import { getLabel } from '../../_lib/labels';
 import { unbanUser } from '../_actions/unbanUser';
 
 export function UnbanButton({ userId }: { userId: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { isOpen, isPending, error, open, close, execute } = useConfirmationAction();
 
   async function handleUnban() {
-    setIsPending(true);
-    setError(null);
-
-    try {
-      const result = await unbanUser(userId);
-
-      if ('error' in result) {
-        setError(result.error);
-        setIsPending(false);
-      } else {
-        setIsOpen(false);
-        setIsPending(false);
-      }
-    } catch {
-      setError(getLabel('admin.errors.unexpected'));
-      setIsPending(false);
-    }
+    await execute(() => unbanUser(userId));
   }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={open}
         className="px-3 py-1 text-xs font-medium rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         {getLabel('admin.usersTable.unban')}
@@ -43,10 +24,7 @@ export function UnbanButton({ userId }: { userId: string }) {
 
       <ConfirmationDialog
         isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false);
-          setError(null);
-        }}
+        onClose={close}
         onConfirm={handleUnban}
         title={getLabel('admin.unbanDialog.title')}
         description={getLabel('admin.unbanDialog.description')}

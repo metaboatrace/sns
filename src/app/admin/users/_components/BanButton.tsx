@@ -1,15 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import { ConfirmationDialog } from '../../_components/ConfirmationDialog';
+import { useConfirmationAction } from '../../_hooks/useConfirmationAction';
 import { getLabel } from '../../_lib/labels';
 import { banUser } from '../_actions/banUser';
 
 export function BanButton({ userId }: { userId: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { isOpen, isPending, error, open, close, execute, setError } = useConfirmationAction();
   const reasonRef = useRef<HTMLTextAreaElement>(null);
 
   async function handleBan() {
@@ -19,30 +18,14 @@ export function BanButton({ userId }: { userId: string }) {
       return;
     }
 
-    setIsPending(true);
-    setError(null);
-
-    try {
-      const result = await banUser(userId, reason);
-
-      if ('error' in result) {
-        setError(result.error);
-        setIsPending(false);
-      } else {
-        setIsOpen(false);
-        setIsPending(false);
-      }
-    } catch {
-      setError(getLabel('admin.errors.unexpected'));
-      setIsPending(false);
-    }
+    await execute(() => banUser(userId, reason));
   }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={open}
         className="px-3 py-1 text-xs font-medium rounded bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
       >
         {getLabel('admin.usersTable.ban')}
@@ -50,10 +33,7 @@ export function BanButton({ userId }: { userId: string }) {
 
       <ConfirmationDialog
         isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false);
-          setError(null);
-        }}
+        onClose={close}
         onConfirm={handleBan}
         title={getLabel('admin.banDialog.title')}
         confirmLabel={getLabel('admin.banDialog.confirm')}
