@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { checkRateLimitByIp } from '../rate-limit-ip';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { checkRateLimitByIp } from '../by-ip';
 
 describe('checkRateLimitByIp', () => {
   beforeEach(() => {

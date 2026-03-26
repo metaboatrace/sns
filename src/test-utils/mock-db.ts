@@ -1,4 +1,4 @@
-import type { Mock } from 'vitest';
+import { vi, type Mock } from 'vitest';
 
 export interface MockDb {
   select: Mock;
@@ -7,6 +7,26 @@ export interface MockDb {
   limit: Mock;
   insert?: Mock;
   values?: Mock;
+}
+
+/**
+ * Create a mock DB with default chaining behavior.
+ * Optionally include `insert`/`values` mocks for write operations.
+ */
+export function createMockDb(options?: { withInsert?: boolean }): MockDb {
+  const mockDb: MockDb = {
+    select: vi.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue([]),
+  };
+
+  if (options?.withInsert !== false) {
+    mockDb.insert = vi.fn().mockReturnThis();
+    mockDb.values = vi.fn().mockResolvedValue(undefined);
+  }
+
+  return mockDb;
 }
 
 /**

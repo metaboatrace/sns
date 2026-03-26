@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-import { validateUsernameServer } from '../username-server';
+import { validateUsernameServer } from '../server-validation';
 
 describe('validateUsernameServer', () => {
   describe('delegates format validation to validateUsername', () => {
