@@ -29,7 +29,7 @@ describe('StatusBadge', () => {
     render(<StatusBadge profile={undefined} />);
     const badge = screen.getByText('匿名');
     expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-yellow-100');
+    expect(badge.className).toContain('bg-muted');
   });
 
   it('renders "停止中" badge when profile has bannedAt', () => {
@@ -45,7 +45,7 @@ describe('StatusBadge', () => {
     render(<StatusBadge profile={profile} />);
     const badge = screen.getByText('有効');
     expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-green-100');
+    expect(badge.className).toContain('bg-primary');
   });
 
   it('renders "有効" badge when bannedAt is explicitly null', () => {
