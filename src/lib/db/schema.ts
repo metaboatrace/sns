@@ -1,6 +1,30 @@
 // Drizzle ORM schema definitions
 import { index, pgEnum, pgTable, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
 
+// Moderation Actions — audit log for admin moderation operations
+export const moderationActions = pgTable(
+  'moderation_actions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    actorId: uuid('actor_id').notNull(), // references auth.users — FK defined in custom SQL
+    action: varchar('action', { length: 50 }).notNull(),
+    targetType: varchar('target_type', { length: 50 }).notNull(),
+    targetId: uuid('target_id').notNull(),
+    reason: text('reason'),
+    ipAddress: varchar('ip_address', { length: 45 }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_moderation_actions_actor').on(table.actorId),
+    index('idx_moderation_actions_target').on(table.targetType, table.targetId),
+    index('idx_moderation_actions_action').on(table.action),
+    index('idx_moderation_actions_created').on(table.createdAt),
+  ],
+);
+
+export type ModerationAction = typeof moderationActions.$inferSelect;
+export type NewModerationAction = typeof moderationActions.$inferInsert;
+
 // Profiles
 export const profiles = pgTable('profiles', {
   id: uuid('id').primaryKey(), // references auth.users(id) — FK defined in custom SQL

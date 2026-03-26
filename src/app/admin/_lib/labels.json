@@ -13,7 +13,10 @@
       "banned": "停止中",
       "anonymous": "匿名",
       "defaultRole": "user",
-      "noUsersFound": "ユーザーが見つかりませんでした"
+      "noUsersFound": "ユーザーが見つかりませんでした",
+      "actions": "アクション",
+      "ban": "BAN",
+      "unban": "BAN解除"
     }
   },
   "pagination": {

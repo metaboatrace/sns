@@ -2,13 +2,16 @@ import { inArray } from 'drizzle-orm';
 
 import { db, type Profile, profiles, userRoles } from '@/lib/db';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 
 import { AdminDataTable } from '../_components/AdminDataTable';
 import { PaginationNav } from '../_components/PaginationNav';
 import { getLabel } from '../_lib/labels';
 import { DEFAULT_PAGE_SIZE, getPaginationData } from '../_lib/pagination';
 
+import { BanButton } from './_components/BanButton';
 import { StatusBadge } from './_components/StatusBadge';
+import { UnbanButton } from './_components/UnbanButton';
 
 export default async function AdminUsersPage({
   searchParams,
@@ -19,6 +22,11 @@ export default async function AdminUsersPage({
   const page = Math.max(1, Number(params.page) || 1);
 
   const adminClient = createAdminClient();
+
+  const supabase = await createClient();
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
 
   const { data: usersData, error } = await adminClient.auth.admin.listUsers({
     page,
@@ -60,11 +68,14 @@ export default async function AdminUsersPage({
           getLabel('admin.usersTable.role'),
           getLabel('admin.usersTable.status'),
           getLabel('admin.usersTable.createdAt'),
+          getLabel('admin.usersTable.actions'),
         ]}
         items={users}
         emptyMessage={getLabel('admin.usersTable.noUsersFound')}
         renderRow={(user) => {
           const profile = profileMap.get(user.id);
+          const isBanned = profile?.bannedAt != null;
+          const isCurrentUser = currentUser?.id === user.id;
 
           return (
             <tr key={user.id} className="border-t border-border">
@@ -86,6 +97,13 @@ export default async function AdminUsersPage({
               </td>
               <td className="px-4 py-3 text-muted-foreground">
                 {user.created_at ? new Date(user.created_at).toLocaleDateString('ja-JP') : '-'}
+              </td>
+              <td className="px-4 py-3">
+                {!isCurrentUser && profile && (
+                  <>
+                    {isBanned ? <UnbanButton userId={user.id} /> : <BanButton userId={user.id} />}
+                  </>
+                )}
               </td>
             </tr>
           );
