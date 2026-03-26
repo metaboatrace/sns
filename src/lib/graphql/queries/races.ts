@@ -1,5 +1,5 @@
 import { gql } from "graphql-request";
-import { getGraphQLClient } from "../client";
+import { safeRequest } from "../safe-request";
 import type { Race, Stadium } from "@/types/boatrace";
 
 const GET_LATEST_DATE = gql`
@@ -52,36 +52,31 @@ type GetStadiumsResponse = {
 };
 
 export async function getLatestDate(): Promise<string | null> {
-  try {
-    const client = getGraphQLClient();
-    const data = await client.request<GetLatestDateResponse>(GET_LATEST_DATE);
-    return data.races[0]?.date ?? null;
-  } catch (error) {
-    console.error("Failed to fetch latest date:", error);
-    return null;
-  }
+  return safeRequest<GetLatestDateResponse, string | null>(
+    GET_LATEST_DATE,
+    undefined,
+    (data) => data.races[0]?.date ?? null,
+    null,
+    "latest date",
+  );
 }
 
 export async function getRacesByDate(date: string): Promise<Race[]> {
-  try {
-    const client = getGraphQLClient();
-    const data = await client.request<GetRacesByDateResponse>(GET_RACES_BY_DATE, {
-      date,
-    });
-    return data.races;
-  } catch (error) {
-    console.error("Failed to fetch races:", error);
-    return [];
-  }
+  return safeRequest<GetRacesByDateResponse, Race[]>(
+    GET_RACES_BY_DATE,
+    { date },
+    (data) => data.races,
+    [],
+    "races",
+  );
 }
 
 export async function getStadiums(): Promise<Stadium[]> {
-  try {
-    const client = getGraphQLClient();
-    const data = await client.request<GetStadiumsResponse>(GET_STADIUMS);
-    return data.stadiums;
-  } catch (error) {
-    console.error("Failed to fetch stadiums:", error);
-    return [];
-  }
+  return safeRequest<GetStadiumsResponse, Stadium[]>(
+    GET_STADIUMS,
+    undefined,
+    (data) => data.stadiums,
+    [],
+    "stadiums",
+  );
 }
