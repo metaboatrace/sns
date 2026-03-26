@@ -1,31 +1,20 @@
 import { notFound } from 'next/navigation';
 
-import { eq } from 'drizzle-orm';
-
-import { db, userRoles } from '@/lib/db';
-import { createClient } from '@/lib/supabase/server';
+import { getOptionalUser } from '@/lib/auth';
+import { isAdmin } from '@/lib/db/queries/user-roles';
 
 export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getOptionalUser();
 
   if (!user) {
     notFound();
   }
 
-  const [userRole] = await db
-    .select()
-    .from(userRoles)
-    .where(eq(userRoles.userId, user.id))
-    .limit(1);
-
-  if (!userRole || userRole.role !== 'admin') {
+  if (!(await isAdmin(user.id))) {
     notFound();
   }
 
