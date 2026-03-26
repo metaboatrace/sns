@@ -1,10 +1,54 @@
 import { describe, it, expect } from 'vitest';
 
-import { DEFAULT_PAGE_SIZE, getPaginationData } from '../pagination';
+import { DEFAULT_PAGE_SIZE, parsePageParam, getPaginationData } from '../pagination';
 
 describe('DEFAULT_PAGE_SIZE', () => {
   it('is 20', () => {
     expect(DEFAULT_PAGE_SIZE).toBe(20);
+  });
+});
+
+describe('parsePageParam', () => {
+  it('returns 1 when page param is undefined', () => {
+    expect(parsePageParam({})).toBe(1);
+  });
+
+  it('returns 1 when page param is an empty string', () => {
+    expect(parsePageParam({ page: '' })).toBe(1);
+  });
+
+  it('parses a valid page number string', () => {
+    expect(parsePageParam({ page: '3' })).toBe(3);
+  });
+
+  it('returns 1 when page param is "0"', () => {
+    expect(parsePageParam({ page: '0' })).toBe(1);
+  });
+
+  it('returns 1 when page param is negative', () => {
+    expect(parsePageParam({ page: '-5' })).toBe(1);
+  });
+
+  it('returns 1 when page param is non-numeric', () => {
+    expect(parsePageParam({ page: 'abc' })).toBe(1);
+  });
+
+  it('truncates decimal values via Number()', () => {
+    // Number("2.9") is 2.9, Math.max(1, 2.9) is 2.9
+    expect(parsePageParam({ page: '2.9' })).toBe(2.9);
+  });
+
+  it('returns 1 when page param is a string array', () => {
+    // Number(["3","4"]) is NaN → || 1
+    expect(parsePageParam({ page: ['3', '4'] })).toBe(1);
+  });
+
+  it('handles page param "1" correctly', () => {
+    expect(parsePageParam({ page: '1' })).toBe(1);
+  });
+
+  it('ignores other params and only reads page', () => {
+    expect(parsePageParam({ page: '5', sort: 'asc' })).toBe(5);
   });
 });
 
@@ -65,10 +109,10 @@ describe('getPaginationData', () => {
     expect(result.totalPages).toBe(1);
   });
 
-  it('does not clamp page exceeding totalPages', () => {
+  it('clamps page exceeding totalPages to totalPages', () => {
     const result = getPaginationData(10, 20);
-    expect(result.currentPage).toBe(10);
-    expect(result.offset).toBe(180);
+    expect(result.currentPage).toBe(1);
+    expect(result.offset).toBe(0);
     expect(result.totalPages).toBe(1);
   });
 
