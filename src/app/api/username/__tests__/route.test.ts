@@ -114,4 +114,15 @@ describe('POST /api/username', () => {
     const json = await response.json();
     expect(json.error).toBe('username_inappropriate');
   });
+
+  it('truncates displayName longer than 50 characters', async () => {
+    const longDisplayName = 'a'.repeat(60);
+    const response = await POST(buildRequest({ username: 'validuser', displayName: longDisplayName }));
+    expect(response.status).toBe(200);
+
+    // Verify that the value passed to db.insert().values() has a truncated displayName
+    const insertedValues = mockDb.values.mock.calls[0][0];
+    expect(insertedValues.displayName).toBe('a'.repeat(50));
+    expect(insertedValues.displayName.length).toBe(50);
+  });
 });

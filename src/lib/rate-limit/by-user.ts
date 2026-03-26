@@ -1,5 +1,5 @@
-import { and, eq, gte, sql } from 'drizzle-orm';
-import { db, rateLimitEvents } from '@/lib/db';
+import { sql } from 'drizzle-orm';
+import { db } from '@/lib/db';
 
 export async function checkRateLimit(
   userId: string,
@@ -9,22 +9,25 @@ export async function checkRateLimit(
 ): Promise<{ allowed: boolean }> {
   const windowStart = new Date(Date.now() - windowMs);
 
-  const [result] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(rateLimitEvents)
-    .where(
-      and(
-        eq(rateLimitEvents.userId, userId),
-        eq(rateLimitEvents.action, action),
-        gte(rateLimitEvents.createdAt, windowStart),
-      ),
-    );
+  // Atomic: insert only if current count is below the limit
+  const result = await db.execute(
+    sql`
+      WITH inserted AS (
+        INSERT INTO rate_limit_events (user_id, action)
+        SELECT ${userId}, ${action}
+        WHERE (
+          SELECT count(*)
+          FROM rate_limit_events
+          WHERE user_id = ${userId}
+            AND action = ${action}
+            AND created_at >= ${windowStart}
+        ) < ${limit}
+        RETURNING id
+      )
+      SELECT EXISTS (SELECT 1 FROM inserted) AS allowed
+    `
+  );
 
-  if (result.count >= limit) {
-    return { allowed: false };
-  }
-
-  await db.insert(rateLimitEvents).values({ userId, action });
-
-  return { allowed: true };
+  const allowed = result.rows?.[0]?.allowed ?? false;
+  return { allowed: Boolean(allowed) };
 }

@@ -36,7 +36,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
   }
   const username = body.username?.trim().toLowerCase();
-  const displayName = body.displayName?.trim() || undefined;
+  const MAX_DISPLAY_NAME_LENGTH = 50;
+  const displayName = body.displayName?.trim().slice(0, MAX_DISPLAY_NAME_LENGTH) || undefined;
 
   if (!username) {
     return NextResponse.json({ error: 'username_required' }, { status: 400 });

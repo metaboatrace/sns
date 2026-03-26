@@ -1,9 +1,29 @@
+/**
+ * In-memory IP-based rate limiting.
+ *
+ * LIMITATION: This store is local to each process / serverless instance.
+ * In a multi-instance or serverless environment (e.g., Vercel), requests
+ * may be distributed across instances, reducing the effectiveness of this
+ * rate limit. For production use, consider replacing with a distributed
+ * store such as Redis (e.g., Upstash + @upstash/ratelimit).
+ *
+ * The user-ID-based rate limit (by-user.ts) uses the database and is
+ * unaffected by this limitation.
+ */
+
 const store = new Map<string, { count: number; resetAt: number }>();
 
 export function getClientIp(request: Request): string {
+  // Prefer x-real-ip set by trusted reverse proxy (e.g., Vercel)
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+
+  // Fallback: use the rightmost X-Forwarded-For value
+  // (the one appended by the trusted proxy, not the client-supplied leftmost value)
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    return forwarded.split(',')[0].trim();
+    const ips = forwarded.split(',').map(s => s.trim()).filter(Boolean);
+    return ips[ips.length - 1];
   }
   return '127.0.0.1';
 }

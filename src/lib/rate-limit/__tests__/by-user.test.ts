@@ -1,23 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { resetMockDb } from '@/test-utils/mock-db';
 
-const { mockDb } = vi.hoisted(() => ({
-  mockDb: {
-    select: vi.fn().mockReturnThis(),
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockResolvedValue([]),
-    insert: vi.fn().mockReturnThis(),
-    values: vi.fn().mockResolvedValue(undefined),
-  },
+const { mockExecute } = vi.hoisted(() => ({
+  mockExecute: vi.fn(),
 }));
 
 vi.mock('@/lib/db', () => ({
-  db: mockDb,
-  rateLimitEvents: {
-    userId: 'user_id',
-    action: 'action',
-    createdAt: 'created_at',
+  db: {
+    execute: mockExecute,
   },
 }));
 
@@ -26,17 +15,24 @@ import { checkRateLimit } from '../by-user';
 describe('checkRateLimit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetMockDb(mockDb);
   });
 
   it('allows when under the limit', async () => {
-    mockDb.where.mockResolvedValue([{ count: 2 }]);
+    mockExecute.mockResolvedValue({ rows: [{ allowed: true }] });
     const result = await checkRateLimit('user-1', 'test', 5, 60_000);
     expect(result.allowed).toBe(true);
+    expect(mockExecute).toHaveBeenCalledTimes(1);
   });
 
   it('rejects when the limit is reached', async () => {
-    mockDb.where.mockResolvedValue([{ count: 5 }]);
+    mockExecute.mockResolvedValue({ rows: [{ allowed: false }] });
+    const result = await checkRateLimit('user-1', 'test', 5, 60_000);
+    expect(result.allowed).toBe(false);
+    expect(mockExecute).toHaveBeenCalledTimes(1);
+  });
+
+  it('defaults to not allowed when rows are empty', async () => {
+    mockExecute.mockResolvedValue({ rows: [] });
     const result = await checkRateLimit('user-1', 'test', 5, 60_000);
     expect(result.allowed).toBe(false);
   });
