@@ -28,8 +28,12 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export function GoogleSignInButton() {
-  const t = useTranslations('signIn');
+type Props = {
+  namespace?: 'signIn' | 'signUp';
+};
+
+export function GoogleSignInButton({ namespace = 'signIn' }: Props) {
+  const t = useTranslations(namespace);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
