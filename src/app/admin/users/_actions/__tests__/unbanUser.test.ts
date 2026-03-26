@@ -1,88 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import {
+  adminUserId,
+  mockGetUser,
+  mockInsertValues,
+  mockSelectFromWhere,
+  mockTransaction,
+  mockUpdateSetWhere,
+  mockUpdateUserById,
+  targetUserId,
+} from './helpers/admin-action-mocks';
 import { unbanUser } from '../unbanUser';
-
-const mockGetUser = vi.fn();
-const mockSelectFromWhere = vi.fn();
-const mockUpdateSetWhere = vi.fn();
-const mockUpdateUserById = vi.fn();
-const mockInsertValues = vi.fn();
-const mockTransaction = vi.fn();
-
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: () =>
-    Promise.resolve({
-      auth: {
-        getUser: mockGetUser,
-      },
-    }),
-}));
-
-vi.mock('@/lib/db', () => {
-  const makeDbOps = () => ({
-    select: () => ({
-      from: () => ({
-        where: (...args: unknown[]) => {
-          mockSelectFromWhere(...args);
-          return {
-            limit: () =>
-              mockSelectFromWhere.mock.results[mockSelectFromWhere.mock.calls.length - 1]?.value ??
-              [],
-          };
-        },
-      }),
-    }),
-    update: () => ({
-      set: () => ({
-        where: mockUpdateSetWhere,
-      }),
-    }),
-    insert: () => ({
-      values: mockInsertValues,
-    }),
-  });
-
-  return {
-    db: {
-      ...makeDbOps(),
-      transaction: async (fn: (tx: ReturnType<typeof makeDbOps>) => Promise<void>) => {
-        mockTransaction();
-        return fn(makeDbOps());
-      },
-    },
-    profiles: { id: 'id', bannedAt: 'banned_at', updatedAt: 'updated_at' },
-    moderationActions: {
-      actorId: 'actor_id',
-      action: 'action',
-      targetType: 'target_type',
-      targetId: 'target_id',
-      reason: 'reason',
-      ipAddress: 'ip_address',
-    },
-    userRoles: { userId: 'user_id' },
-  };
-});
-
-vi.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: () => ({
-    auth: {
-      admin: {
-        updateUserById: mockUpdateUserById,
-      },
-    },
-  }),
-}));
-
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-}));
-
-vi.mock('../getClientIp', () => ({
-  getClientIp: () => Promise.resolve('127.0.0.1'),
-}));
-
-const adminUserId = 'admin-00000000-0000-0000-0000-000000000001';
-const targetUserId = 'target-00000000-0000-0000-0000-000000000001';
 
 describe('unbanUser', () => {
   beforeEach(() => {
@@ -231,10 +159,7 @@ describe('unbanUser', () => {
       .mockReturnValueOnce([{ role: 'admin' }])
       .mockReturnValueOnce([{ bannedAt: originalBannedAt }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
-
-    const { db } = await import('@/lib/db');
-    const originalTransaction = db.transaction;
-    db.transaction = vi.fn().mockRejectedValueOnce(new Error('DB transaction failed'));
+    mockTransaction.mockRejectedValueOnce(new Error('DB transaction failed'));
 
     const result = await unbanUser(targetUserId);
 
@@ -247,8 +172,6 @@ describe('unbanUser', () => {
       ban_duration: '876000h',
     });
     expect(mockUpdateSetWhere).toHaveBeenCalled();
-
-    db.transaction = originalTransaction;
   });
 
   it('should restore null bannedAt in rollback when user was not previously banned', async () => {
@@ -257,10 +180,7 @@ describe('unbanUser', () => {
       .mockReturnValueOnce([{ role: 'admin' }])
       .mockReturnValueOnce([{ bannedAt: null }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
-
-    const { db } = await import('@/lib/db');
-    const originalTransaction = db.transaction;
-    db.transaction = vi.fn().mockRejectedValueOnce(new Error('DB transaction failed'));
+    mockTransaction.mockRejectedValueOnce(new Error('DB transaction failed'));
 
     const result = await unbanUser(targetUserId);
 
@@ -268,11 +188,9 @@ describe('unbanUser', () => {
     expect(mockUpdateUserById).toHaveBeenNthCalledWith(2, targetUserId, {
       ban_duration: '876000h',
     });
-
-    db.transaction = originalTransaction;
   });
 
-  it('should throw when both DB transaction and Auth rollback fail (double failure)', async () => {
+  it('should return failedToUnban even when Auth rollback also fails (double failure)', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
       .mockReturnValueOnce([{ role: 'admin' }])
@@ -280,13 +198,10 @@ describe('unbanUser', () => {
     mockUpdateUserById
       .mockResolvedValueOnce({ error: null })
       .mockRejectedValueOnce(new Error('Auth rollback failed'));
+    mockTransaction.mockRejectedValueOnce(new Error('DB transaction failed'));
 
-    const { db } = await import('@/lib/db');
-    const originalTransaction = db.transaction;
-    db.transaction = vi.fn().mockRejectedValueOnce(new Error('DB transaction failed'));
+    const result = await unbanUser(targetUserId);
 
-    await expect(unbanUser(targetUserId)).rejects.toThrow('Auth rollback failed');
-
-    db.transaction = originalTransaction;
+    expect(result).toEqual({ error: 'failedToUnban' });
   });
 });
