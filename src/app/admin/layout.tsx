@@ -6,6 +6,14 @@ import { isAdmin } from '@/lib/db/queries/user-roles';
 
 import { getLabel } from './_lib/labels';
 
+const navItems = [
+  { href: '/admin', labelKey: 'admin.dashboard' },
+  { href: '/admin/users', labelKey: 'admin.users' },
+  { href: '/admin/audit-log', labelKey: 'admin.auditLog' },
+  { href: '/admin/activity-log', labelKey: 'admin.activityLog' },
+  { href: '/', labelKey: 'admin.backToSite' },
+] as const;
+
 export default async function AdminLayout({
   children,
 }: Readonly<{
@@ -26,46 +34,16 @@ export default async function AdminLayout({
       <aside className="w-64 bg-secondary border-r border-border">
         <div className="h-full px-3 py-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
-            <li>
-              <Link
-                href="/admin"
-                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
-              >
-                <span className="ml-3">{getLabel('admin.dashboard')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/admin/users"
-                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
-              >
-                <span className="ml-3">{getLabel('admin.users')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/admin/audit-log"
-                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
-              >
-                <span className="ml-3">{getLabel('admin.auditLog')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/admin/activity-log"
-                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
-              >
-                <span className="ml-3">{getLabel('admin.activityLog')}</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/"
-                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
-              >
-                <span className="ml-3">{getLabel('admin.backToSite')}</span>
-              </Link>
-            </li>
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
+                >
+                  <span className="ml-3">{getLabel(item.labelKey)}</span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </aside>

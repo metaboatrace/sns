@@ -1,59 +1,21 @@
-import { inArray } from 'drizzle-orm';
-
-import { db, type Profile, profiles, userRoles } from '@/lib/db';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 import { AdminDataTable } from '../_components/AdminDataTable';
 import { PaginationNav } from '../_components/PaginationNav';
 import { getLabel } from '../_lib/labels';
-import { DEFAULT_PAGE_SIZE, getPaginationData } from '../_lib/pagination';
+import { parsePageParam } from '../_lib/pagination';
 
-import { BanButton } from './_components/BanButton';
-import { StatusBadge } from './_components/StatusBadge';
-import { UnbanButton } from './_components/UnbanButton';
+import { UserRow } from './_components/UserRow';
+import { getUsersPageData } from './_queries/getUsersPageData';
 
 export default async function AdminUsersPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
-
-  const adminClient = createAdminClient();
-
-  const supabase = await createClient();
-  const {
-    data: { user: currentUser },
-  } = await supabase.auth.getUser();
-
-  const { data: usersData, error } = await adminClient.auth.admin.listUsers({
-    page,
-    perPage: DEFAULT_PAGE_SIZE,
-  });
-
-  if (error) {
-    throw new Error(`Failed to list users: ${error.message}`);
-  }
-
-  const users = usersData?.users ?? [];
-  const totalCount = usersData && 'total' in usersData ? Number(usersData.total) : 0;
-  const { currentPage, totalPages } = getPaginationData(page, totalCount);
-
-  const userIds = users.map((u) => u.id);
-
-  const userProfiles: Profile[] =
-    userIds.length > 0
-      ? await db.select().from(profiles).where(inArray(profiles.id, userIds))
-      : [];
-  const profileMap = new Map(userProfiles.map((p) => [p.id, p]));
-
-  const roles =
-    userIds.length > 0
-      ? await db.select().from(userRoles).where(inArray(userRoles.userId, userIds))
-      : [];
-  const roleMap = new Map(roles.map((r) => [r.userId, r.role]));
+  const page = parsePageParam(await searchParams);
+  const currentUser = await getAuthenticatedUser();
+  const { users, profileMap, roleMap, currentPage, totalPages } = await getUsersPageData(page);
 
   const buildHref = (p: number) => `/admin/users?page=${p}`;
 
@@ -72,42 +34,15 @@ export default async function AdminUsersPage({
         ]}
         items={users}
         emptyMessage={getLabel('admin.usersTable.noUsersFound')}
-        renderRow={(user) => {
-          const profile = profileMap.get(user.id);
-          const isBanned = profile?.bannedAt != null;
-          const isCurrentUser = currentUser?.id === user.id;
-
-          return (
-            <tr key={user.id} className="border-t border-border">
-              <td className="px-4 py-3">{user.email ?? '-'}</td>
-              <td className="px-4 py-3">{profile?.username ?? '-'}</td>
-              <td className="px-4 py-3">
-                <span
-                  className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                    roleMap.get(user.id) === 'admin'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-foreground'
-                  }`}
-                >
-                  {roleMap.get(user.id) ?? getLabel('admin.usersTable.defaultRole')}
-                </span>
-              </td>
-              <td className="px-4 py-3">
-                <StatusBadge profile={profile} />
-              </td>
-              <td className="px-4 py-3 text-muted-foreground">
-                {user.created_at ? new Date(user.created_at).toLocaleDateString('ja-JP') : '-'}
-              </td>
-              <td className="px-4 py-3">
-                {!isCurrentUser && profile && (
-                  <>
-                    {isBanned ? <UnbanButton userId={user.id} /> : <BanButton userId={user.id} />}
-                  </>
-                )}
-              </td>
-            </tr>
-          );
-        }}
+        renderRow={(user) => (
+          <UserRow
+            key={user.id}
+            user={user}
+            profileMap={profileMap}
+            roleMap={roleMap}
+            currentUserId={currentUser.id}
+          />
+        )}
       />
 
       <PaginationNav currentPage={currentPage} totalPages={totalPages} buildHref={buildHref} />
