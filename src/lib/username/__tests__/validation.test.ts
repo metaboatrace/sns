@@ -98,7 +98,7 @@ describe('validateUsername', () => {
   });
 
   it('returns "reserved" for reserved usernames', () => {
-    expect(validateUsername('admin')).toBe('reserved');
+    expect(validateUsername('administrator')).toBe('reserved');
     expect(validateUsername('api')).toBe('reserved');
     expect(validateUsername('boatrace')).toBe('reserved');
   });

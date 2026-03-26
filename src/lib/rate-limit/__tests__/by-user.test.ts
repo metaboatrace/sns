@@ -18,21 +18,21 @@ describe('checkRateLimit', () => {
   });
 
   it('allows when under the limit', async () => {
-    mockExecute.mockResolvedValue({ rows: [{ allowed: true }] });
+    mockExecute.mockResolvedValue([{ allowed: true }]);
     const result = await checkRateLimit('user-1', 'test', 5, 60_000);
     expect(result.allowed).toBe(true);
     expect(mockExecute).toHaveBeenCalledTimes(1);
   });
 
   it('rejects when the limit is reached', async () => {
-    mockExecute.mockResolvedValue({ rows: [{ allowed: false }] });
+    mockExecute.mockResolvedValue([{ allowed: false }]);
     const result = await checkRateLimit('user-1', 'test', 5, 60_000);
     expect(result.allowed).toBe(false);
     expect(mockExecute).toHaveBeenCalledTimes(1);
   });
 
   it('defaults to not allowed when rows are empty', async () => {
-    mockExecute.mockResolvedValue({ rows: [] });
+    mockExecute.mockResolvedValue([]);
     const result = await checkRateLimit('user-1', 'test', 5, 60_000);
     expect(result.allowed).toBe(false);
   });

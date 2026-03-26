@@ -21,7 +21,7 @@ describe('validateUsernameServer', () => {
 
   describe('delegates reserved word check to validateUsername', () => {
     it('returns "reserved" for reserved usernames', () => {
-      expect(validateUsernameServer('admin')).toBe('reserved');
+      expect(validateUsernameServer('administrator')).toBe('reserved');
     });
 
     it('returns "reserved" for system usernames', () => {
