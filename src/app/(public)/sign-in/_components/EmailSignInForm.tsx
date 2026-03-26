@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
+import { FormErrorMessage } from '@/components/ui/form-error-message';
+
 import { signIn } from '../_actions/signIn';
 
 export function EmailSignInForm() {
@@ -48,11 +50,7 @@ export function EmailSignInForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-4">
-      {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-center">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        </div>
-      )}
+      {error && <FormErrorMessage message={error} />}
 
       <div>
         <label htmlFor="signin-email" className="block text-sm font-medium text-black dark:text-zinc-50 mb-1">

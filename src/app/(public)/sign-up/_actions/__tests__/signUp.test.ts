@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@/lib/client-ip', () => ({
-  getClientIp: vi.fn(),
-}));
-
 vi.mock('@/lib/rate-limit', () => ({
-  checkRateLimitByIp: vi.fn(),
+  checkServerActionRateLimit: vi.fn(),
 }));
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -13,12 +9,10 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 import { signUp } from '../signUp';
-import { getClientIp } from '@/lib/client-ip';
-import { checkRateLimitByIp } from '@/lib/rate-limit';
+import { checkServerActionRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 
-const mockedGetClientIp = vi.mocked(getClientIp);
-const mockedCheckRateLimitByIp = vi.mocked(checkRateLimitByIp);
+const mockedCheckServerActionRateLimit = vi.mocked(checkServerActionRateLimit);
 const mockedCreateClient = vi.mocked(createClient);
 
 describe('signUp', () => {
@@ -26,8 +20,7 @@ describe('signUp', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockedGetClientIp.mockResolvedValue('127.0.0.1');
-    mockedCheckRateLimitByIp.mockReturnValue({ allowed: true, retryAfterMs: 0 });
+    mockedCheckServerActionRateLimit.mockResolvedValue(true);
     mockedCreateClient.mockResolvedValue({
       auth: { signUp: mockSignUp },
     } as unknown as Awaited<ReturnType<typeof createClient>>);
@@ -45,10 +38,15 @@ describe('signUp', () => {
   });
 
   it('returns rateLimited when IP rate limit is exceeded', async () => {
-    mockedCheckRateLimitByIp.mockReturnValue({ allowed: false, retryAfterMs: 60000 });
+    mockedCheckServerActionRateLimit.mockResolvedValue(false);
     const result = await signUp('test@example.com', 'abc123');
     expect(result).toEqual({ error: 'rateLimited' });
     expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it('calls checkServerActionRateLimit with correct parameters', async () => {
+    await signUp('test@example.com', 'abc123');
+    expect(mockedCheckServerActionRateLimit).toHaveBeenCalledWith('signUp', 5, 300_000);
   });
 
   it('returns password validation error for invalid password', async () => {
@@ -79,13 +77,6 @@ describe('signUp', () => {
     mockSignUp.mockResolvedValue({ error: { code: 'unknown_error' } });
     const result = await signUp('test@example.com', 'abc123');
     expect(result).toEqual({ error: 'signUpFailed' });
-  });
-
-  it('applies rate limiting with unknown IP fallback', async () => {
-    mockedGetClientIp.mockResolvedValue('unknown');
-    const result = await signUp('test@example.com', 'abc123');
-    expect(result).toEqual({ success: true });
-    expect(mockedCheckRateLimitByIp).toHaveBeenCalledWith('unknown', 'signUp', 5, 300_000);
   });
 
   it('returns password:tooShort for an empty password', async () => {

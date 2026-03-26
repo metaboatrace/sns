@@ -1,7 +1,6 @@
 'use server';
 
-import { getClientIp } from '@/lib/client-ip';
-import { checkRateLimitByIp } from '@/lib/rate-limit';
+import { checkServerActionRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 
 /** IP rate limit: 10 requests per 5 minutes */
@@ -11,8 +10,7 @@ const IP_RATE_LIMIT_WINDOW_MS = 300_000;
 export type SignInResult = { error: string } | { success: true };
 
 export async function signIn(email: string, password: string): Promise<SignInResult> {
-  const ip = await getClientIp();
-  const { allowed } = checkRateLimitByIp(ip, 'signIn', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
+  const allowed = await checkServerActionRateLimit('signIn', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
   if (!allowed) {
     return { error: 'rateLimited' };
   }

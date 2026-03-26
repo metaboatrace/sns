@@ -7,7 +7,8 @@
         "account": "アカウントメニュー",
         "settings": "設定",
         "signOut": "ログアウト",
-        "signIn": "ログイン"
+        "signIn": "ログイン",
+        "signUp": "新規登録"
     },
     "Header": {
         "title": "Boatrace SNS"

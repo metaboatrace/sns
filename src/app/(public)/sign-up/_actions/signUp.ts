@@ -2,8 +2,7 @@
 
 import { SITE_URL } from '@/config';
 
-import { getClientIp } from '@/lib/client-ip';
-import { checkRateLimitByIp } from '@/lib/rate-limit';
+import { checkServerActionRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
 import { getPasswordValidationError } from '@/lib/validations/password';
 
@@ -14,8 +13,7 @@ const IP_RATE_LIMIT_WINDOW_MS = 300_000;
 export type SignUpResult = { success: true } | { error: string };
 
 export async function signUp(email: string, password: string): Promise<SignUpResult> {
-  const ip = await getClientIp();
-  const { allowed } = checkRateLimitByIp(ip, 'signUp', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
+  const allowed = await checkServerActionRateLimit('signUp', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
   if (!allowed) {
     return { error: 'rateLimited' };
   }

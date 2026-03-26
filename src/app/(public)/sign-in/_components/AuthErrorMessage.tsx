@@ -1,5 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
+import { FormErrorMessage } from '@/components/ui/form-error-message';
+
 type Props = {
   namespace?: 'signIn' | 'signUp';
 };
@@ -8,10 +10,9 @@ export async function AuthErrorMessage({ namespace = 'signIn' }: Props) {
   const t = await getTranslations(namespace);
 
   return (
-    <div className="max-w-sm mx-auto mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-center">
-      <p className="text-sm text-red-600 dark:text-red-400">
-        {t('authError')}
-      </p>
-    </div>
+    <FormErrorMessage
+      message={t('authError')}
+      className="max-w-sm mx-auto mb-4"
+    />
   );
 }
