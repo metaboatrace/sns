@@ -5,8 +5,10 @@
  * 1. System / infrastructure
  * 2. URL routing / app paths
  * 3. Common role / identity words
- * 4. Offensive / misleading prefixes
- * 5. Boatrace-specific terms
+ * 4. Boatrace-specific terms
+ *
+ * Note: Offensive words are handled by lame-name.ts (partial match),
+ * so they are not duplicated here.
  */
 
 const RESERVED_USERNAMES: ReadonlySet<string> = new Set([
@@ -100,18 +102,7 @@ const RESERVED_USERNAMES: ReadonlySet<string> = new Set([
   'superuser',
   'user',
 
-  // ── 4. Offensive / misleading prefixes ──
-  'fuck',
-  'shit',
-  'ass',
-  'dick',
-  'porn',
-  'sex',
-  'xxx',
-  'nazi',
-  'hitler',
-
-  // ── 5. Boatrace-specific terms ──
+  // ── 4. Boatrace-specific terms ──
   'boatrace',
   'kyotei',
   'race',

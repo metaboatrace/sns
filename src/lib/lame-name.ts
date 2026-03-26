@@ -11,8 +11,11 @@ const LAME_PATTERNS: readonly string[] = [
   // Sexual expressions
   'fuck',
   'shit',
+  'ass',
+  'dick',
   'porn',
   'sex',
+  'xxx',
   'hentai',
   'erotic',
   'penis',

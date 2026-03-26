@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server';
 import { db, profiles } from '@/lib/db';
+import { isUniqueViolation } from '@/lib/db/errors';
 import { createClient } from '@/lib/supabase/server';
-import { validateUsername } from '@/lib/username';
-import { isLameName } from '@/lib/lame-name';
+import { validateUsernameServer } from '@/lib/username-server';
 import { getClientIp, checkRateLimitByIp } from '@/lib/rate-limit-ip';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { hasProfile } from '@/lib/db/queries/profiles';
 
+/** IP rate limit: 10 requests per 5 minutes */
+const IP_RATE_LIMIT_MAX = 10;
+const IP_RATE_LIMIT_WINDOW_MS = 300_000;
+
+/** User rate limit: 5 requests per 10 minutes */
+const USER_RATE_LIMIT_MAX = 5;
+const USER_RATE_LIMIT_WINDOW_MS = 600_000;
+
 export async function POST(request: Request) {
   // IP-based rate limiting (before auth)
   const clientIp = getClientIp(request);
-  const ipCheck = checkRateLimitByIp(clientIp, 'setupUsername', 10, 300_000);
+  const ipCheck = checkRateLimitByIp(clientIp, 'setupUsername', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
   if (!ipCheck.allowed) {
     const retryAfterSeconds = Math.ceil(ipCheck.retryAfterMs / 1000);
     return NextResponse.json(
@@ -29,7 +37,7 @@ export async function POST(request: Request) {
   }
 
   // User-ID-based rate limiting (after auth)
-  const userCheck = await checkRateLimit(user.id, 'setupUsername', 5, 600_000);
+  const userCheck = await checkRateLimit(user.id, 'setupUsername', USER_RATE_LIMIT_MAX, USER_RATE_LIMIT_WINDOW_MS);
   if (!userCheck.allowed) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
   }
@@ -47,13 +55,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'username_required' }, { status: 400 });
   }
 
-  const validationError = validateUsername(username);
+  const validationError = validateUsernameServer(username);
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 400 });
-  }
-
-  if (isLameName(username)) {
-    return NextResponse.json({ error: 'username_inappropriate' }, { status: 400 });
   }
 
   // Check if the user already has a profile
@@ -68,13 +72,7 @@ export async function POST(request: Request) {
       displayName: displayName ?? username,
     });
   } catch (err: unknown) {
-    // UNIQUE constraint violation (PostgreSQL error code 23505)
-    if (
-      typeof err === 'object' &&
-      err !== null &&
-      'code' in err &&
-      (err as { code: string }).code === '23505'
-    ) {
+    if (isUniqueViolation(err)) {
       return NextResponse.json({ error: 'username_taken' }, { status: 409 });
     }
     throw err;

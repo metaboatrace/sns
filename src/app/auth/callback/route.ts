@@ -21,11 +21,6 @@ export async function GET(request: Request) {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     authSuccess = !error;
-
-    // PKCE Recovery → パスワードリセットページへ
-    if (authSuccess && type === 'recovery') {
-      return NextResponse.redirect(`${origin}/reset-password`);
-    }
   } else if (tokenHash && type && VALID_OTP_TYPES.includes(type as ValidOtpType)) {
     // パターン3&4: OTP (メール確認 / パスワードリセット)
     const { error } = await supabase.auth.verifyOtp({
@@ -33,15 +28,15 @@ export async function GET(request: Request) {
       type: type as ValidOtpType,
     });
     authSuccess = !error;
-
-    // パスワードリセット → リセットページへ
-    if (authSuccess && type === 'recovery') {
-      return NextResponse.redirect(`${origin}/reset-password`);
-    }
   }
 
   if (!authSuccess) {
     return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
+  }
+
+  // Recovery → パスワードリセットページへ
+  if (type === 'recovery') {
+    return NextResponse.redirect(`${origin}/reset-password`);
   }
 
   // プロフィール設定チェック

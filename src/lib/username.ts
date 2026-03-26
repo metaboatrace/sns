@@ -2,7 +2,7 @@ import { isReservedUsername } from '@/lib/reserved-usernames';
 
 const USERNAME_REGEX = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
 const USERNAME_MIN_LENGTH = 2;
-const USERNAME_MAX_LENGTH = 20;
+export const USERNAME_MAX_LENGTH = 20;
 
 export type UsernameFormatError = 'too_short' | 'too_long' | 'invalid_format';
 export type UsernameValidationError = UsernameFormatError | 'reserved';
