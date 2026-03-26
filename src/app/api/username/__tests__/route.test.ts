@@ -27,8 +27,11 @@ vi.mock('@/lib/db', () => ({
   profiles: { id: 'id', username: 'username', displayName: 'display_name' },
 }));
 
-vi.mock('@/lib/rate-limit', () => ({
+vi.mock('@/lib/client-ip', () => ({
   getClientIpFromRequest: vi.fn().mockReturnValue('127.0.0.1'),
+}));
+
+vi.mock('@/lib/rate-limit', () => ({
   checkRateLimitByIp: (...args: unknown[]) => mockCheckRateLimitByIp(...args),
   checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
 }));

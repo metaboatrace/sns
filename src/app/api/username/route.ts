@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getClientIpFromRequest, checkRateLimitByIp, checkRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/client-ip';
+import { checkRateLimitByIp, checkRateLimit } from '@/lib/rate-limit';
 import { DISPLAY_NAME_MAX_LENGTH } from '@/lib/username';
 import { setupUsername } from '@/lib/services/username-setup';
 
