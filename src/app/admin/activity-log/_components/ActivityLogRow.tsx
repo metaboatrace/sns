@@ -1,6 +1,8 @@
 import type { Profile, UserActivityLog } from '@/lib/db';
 
 import { Badge } from '../../_components/Badge';
+import { TruncatedText } from '../../_components/TruncatedText';
+import { formatDateTime } from '../../_lib/date';
 import { resolveDisplayName } from '../../_lib/display-name';
 
 type ActivityLogRowProps = {
@@ -10,7 +12,8 @@ type ActivityLogRowProps = {
 
 export function ActivityLogRow({ log, profileMap }: ActivityLogRowProps) {
   const userDisplay = resolveDisplayName(profileMap, log.userId);
-  const metadataStr = log.metadata ? JSON.stringify(log.metadata) : '-';
+  const metadataStr = log.metadata ? JSON.stringify(log.metadata) : null;
+  const displayMetadata = metadataStr === '{}' ? null : metadataStr;
 
   return (
     <tr key={log.id} className="border-t border-border">
@@ -23,16 +26,10 @@ export function ActivityLogRow({ log, profileMap }: ActivityLogRowProps) {
       <td className="px-4 py-3 text-muted-foreground">{log.targetType ?? '-'}</td>
       <td className="px-4 py-3 text-muted-foreground">{log.targetId ?? '-'}</td>
       <td className="px-4 py-3">
-        {metadataStr !== '-' && metadataStr !== '{}' ? (
-          <span title={metadataStr} className="text-xs text-muted-foreground">
-            {metadataStr.length > 60 ? `${metadataStr.slice(0, 60)}...` : metadataStr}
-          </span>
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        )}
+        <TruncatedText text={displayMetadata} maxLength={60} className="text-xs text-muted-foreground" />
       </td>
       <td className="px-4 py-3 text-muted-foreground">
-        {new Date(log.createdAt).toLocaleString('ja-JP')}
+        {formatDateTime(log.createdAt)}
       </td>
     </tr>
   );

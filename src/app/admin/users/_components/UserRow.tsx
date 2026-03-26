@@ -3,6 +3,7 @@ import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/db';
 
 import { Badge } from '../../_components/Badge';
+import { formatDate } from '../../_lib/date';
 import { getLabel } from '../../_lib/labels';
 
 import { BanButton } from './BanButton';
@@ -34,7 +35,7 @@ export function UserRow({ user, profileMap, roleMap, currentUserId }: UserRowPro
         <StatusBadge profile={profile} />
       </td>
       <td className="px-4 py-3 text-muted-foreground">
-        {user.created_at ? new Date(user.created_at).toLocaleDateString('ja-JP') : '-'}
+        {user.created_at ? formatDate(user.created_at) : '-'}
       </td>
       <td className="px-4 py-3">
         {!isCurrentUser && profile && (

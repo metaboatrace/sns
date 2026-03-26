@@ -1,6 +1,8 @@
 import type { ModerationAction, Profile } from '@/lib/db';
 
 import { Badge } from '../../_components/Badge';
+import { TruncatedText } from '../../_components/TruncatedText';
+import { formatDateTime } from '../../_lib/date';
 import { resolveDisplayName } from '../../_lib/display-name';
 
 type AuditLogRowProps = {
@@ -30,17 +32,11 @@ export function AuditLogRow({ log, profileMap }: AuditLogRowProps) {
       </td>
       <td className="px-4 py-3">{targetDisplay}</td>
       <td className="px-4 py-3">
-        {log.reason ? (
-          <span title={log.reason}>
-            {log.reason.length > 50 ? `${log.reason.slice(0, 50)}...` : log.reason}
-          </span>
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        )}
+        <TruncatedText text={log.reason} maxLength={50} />
       </td>
       <td className="px-4 py-3 text-muted-foreground">{log.ipAddress ?? '-'}</td>
       <td className="px-4 py-3 text-muted-foreground">
-        {new Date(log.createdAt).toLocaleString('ja-JP')}
+        {formatDateTime(log.createdAt)}
       </td>
     </tr>
   );
