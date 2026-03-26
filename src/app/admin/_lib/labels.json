@@ -1,0 +1,24 @@
+{
+  "admin": {
+    "users": "ユーザー一覧",
+    "dashboard": "ダッシュボード",
+    "backToSite": "サイトに戻る",
+    "usersTable": {
+      "email": "メール",
+      "username": "ユーザー名",
+      "role": "ロール",
+      "status": "ステータス",
+      "createdAt": "作成日",
+      "active": "有効",
+      "banned": "停止中",
+      "anonymous": "匿名",
+      "defaultRole": "user",
+      "noUsersFound": "ユーザーが見つかりませんでした"
+    }
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "ariaLabel": "ページネーション"
+  }
+}

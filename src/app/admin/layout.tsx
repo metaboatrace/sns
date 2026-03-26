@@ -1,7 +1,10 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getOptionalUser } from '@/lib/auth';
 import { isAdmin } from '@/lib/db/queries/user-roles';
+
+import { getLabel } from './_lib/labels';
 
 export default async function AdminLayout({
   children,
@@ -19,25 +22,33 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+    <div className="flex h-screen bg-background">
+      <aside className="w-64 bg-secondary border-r border-border">
         <div className="h-full px-3 py-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
             <li>
-              <a
+              <Link
                 href="/admin"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
               >
-                <span className="ml-3">Dashboard</span>
-              </a>
+                <span className="ml-3">{getLabel('admin.dashboard')}</span>
+              </Link>
             </li>
             <li>
-              <a
-                href="/"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              <Link
+                href="/admin/users"
+                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
               >
-                <span className="ml-3">Back to Site</span>
-              </a>
+                <span className="ml-3">{getLabel('admin.users')}</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/"
+                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
+              >
+                <span className="ml-3">{getLabel('admin.backToSite')}</span>
+              </Link>
             </li>
           </ul>
         </div>
