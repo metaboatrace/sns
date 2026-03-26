@@ -9,8 +9,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-import { redirectIfAuthenticated } from '@/lib/auth/redirect-if-authenticated';
-import { ensureSupabaseEnv } from '@/lib/auth/ensure-supabase-env';
+import { redirectIfAuthenticated } from '@/lib/auth';
 import { AuthPageLayout } from '@/components/auth/AuthPageLayout';
 import { EmailSignUpForm } from './_components';
 
@@ -29,7 +28,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SignUpPage({ searchParams }: Props) {
   await redirectIfAuthenticated();
-  ensureSupabaseEnv();
 
   const { error } = await searchParams;
 
