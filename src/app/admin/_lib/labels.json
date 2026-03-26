@@ -2,9 +2,15 @@
   "admin": {
     "users": "ユーザー一覧",
     "dashboard": "ダッシュボード",
+    "dashboardTitle": "管理ダッシュボード",
+    "dashboardDescription": "管理エリアへようこそ。",
     "backToSite": "サイトに戻る",
     "auditLog": "監査ログ",
     "activityLog": "アクティビティログ",
+    "dialog": {
+      "cancel": "キャンセル",
+      "processing": "処理中..."
+    },
     "usersTable": {
       "email": "メール",
       "username": "ユーザー名",
@@ -19,6 +25,22 @@
       "actions": "アクション",
       "ban": "BAN",
       "unban": "BAN解除"
+    },
+    "banDialog": {
+      "title": "ユーザーをBANする",
+      "reasonLabel": "BAN理由",
+      "reasonPlaceholder": "BANの理由を入力してください...",
+      "reasonRequired": "理由を入力してください",
+      "confirm": "BANを実行"
+    },
+    "unbanDialog": {
+      "title": "BAN解除",
+      "description": "このユーザーのBANを解除しますか？解除するとプラットフォームへのフルアクセスが復元されます。",
+      "confirm": "BAN解除を実行"
+    },
+    "errors": {
+      "invalidUserId": "無効なユーザーIDです",
+      "unexpected": "予期しないエラーが発生しました"
     },
     "auditLogTable": {
       "actor": "操作者",
