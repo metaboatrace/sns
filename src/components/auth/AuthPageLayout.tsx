@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
-import { AuthErrorMessage } from '@/app/(public)/sign-in/_components/AuthErrorMessage';
-import { GoogleSignInButton } from '@/app/(public)/sign-in/_components/GoogleSignInButton';
+import { AuthErrorMessage } from '@/components/auth/AuthErrorMessage';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 type Props = {
   /** i18n namespace: 'signIn' | 'signUp' */
