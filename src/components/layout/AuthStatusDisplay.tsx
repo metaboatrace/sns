@@ -71,11 +71,19 @@ export function AuthStatusDisplay() {
     }
 
     return (
-        <Link
-            href="/sign-in"
-            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-        >
-            {t('signIn')}
-        </Link>
+        <div className="flex items-center gap-3 text-sm">
+            <Link
+                href="/sign-up"
+                className="font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+                {t('signUp')}
+            </Link>
+            <Link
+                href="/sign-in"
+                className="font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+                {t('signIn')}
+            </Link>
+        </div>
     );
 }

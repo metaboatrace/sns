@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { createClient } from '@/lib/supabase/client';
 
@@ -27,7 +28,12 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export function GoogleSignInButton() {
+type Props = {
+  namespace?: 'signIn' | 'signUp';
+};
+
+export function GoogleSignInButton({ namespace = 'signIn' }: Props) {
+  const t = useTranslations(namespace);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
@@ -54,7 +60,7 @@ export function GoogleSignInButton() {
     >
       <GoogleIcon className="w-5 h-5" />
       <span className="text-sm font-medium text-black dark:text-zinc-50">
-        {isLoading ? 'サインイン中...' : 'Googleでサインイン'}
+        {isLoading ? t('googleButtonLoading') : t('googleButton')}
       </span>
     </button>
   );
