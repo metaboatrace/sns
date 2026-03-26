@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { resetMockDb } from '@/test-utils/mock-db';
 
 // --- hoisted mocks ---
@@ -12,11 +12,6 @@ const { mockDb } = vi.hoisted(() => ({
     insert: vi.fn().mockReturnThis(),
     values: vi.fn().mockResolvedValue(undefined),
   },
-}));
-
-const { mockCheckRateLimitByIp, mockCheckRateLimit } = vi.hoisted(() => ({
-  mockCheckRateLimitByIp: vi.fn(),
-  mockCheckRateLimit: vi.fn(),
 }));
 
 const { mockValidateUsernameServer } = vi.hoisted(() => ({
@@ -48,26 +43,13 @@ vi.mock('@/lib/username/server-validation', () => ({
   validateUsernameServer: mockValidateUsernameServer,
 }));
 
-vi.mock('@/lib/rate-limit', () => ({
-  checkRateLimitByIp: mockCheckRateLimitByIp,
-  checkRateLimit: mockCheckRateLimit,
-}));
-
 vi.mock('@/lib/db/queries/profiles', () => ({
   hasProfile: mockHasProfile,
 }));
 
 // --- import SUT after mocks ---
 
-import {
-  setupUsername,
-  checkIpRateLimit,
-  checkUserRateLimit,
-  IP_RATE_LIMIT_MAX,
-  IP_RATE_LIMIT_WINDOW_MS,
-  USER_RATE_LIMIT_MAX,
-  USER_RATE_LIMIT_WINDOW_MS,
-} from '../../services/username-setup';
+import { setupUsername } from '../../services/username-setup';
 
 // =============================================================================
 // Tests
@@ -80,110 +62,6 @@ describe('username-setup service', () => {
     mockValidateUsernameServer.mockReturnValue(null);
     mockHasProfile.mockResolvedValue(false);
     mockIsUniqueViolation.mockReturnValue(false);
-  });
-
-  // ---------------------------------------------------------------------------
-  // Constants
-  // ---------------------------------------------------------------------------
-
-  describe('rate limit constants', () => {
-    it('exports IP_RATE_LIMIT_MAX as 10', () => {
-      expect(IP_RATE_LIMIT_MAX).toBe(10);
-    });
-
-    it('exports IP_RATE_LIMIT_WINDOW_MS as 300000 (5 minutes)', () => {
-      expect(IP_RATE_LIMIT_WINDOW_MS).toBe(300_000);
-    });
-
-    it('exports USER_RATE_LIMIT_MAX as 5', () => {
-      expect(USER_RATE_LIMIT_MAX).toBe(5);
-    });
-
-    it('exports USER_RATE_LIMIT_WINDOW_MS as 600000 (10 minutes)', () => {
-      expect(USER_RATE_LIMIT_WINDOW_MS).toBe(600_000);
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // checkIpRateLimit
-  // ---------------------------------------------------------------------------
-
-  describe('checkIpRateLimit', () => {
-    it('returns allowed:true when rate limit allows', () => {
-      mockCheckRateLimitByIp.mockReturnValue({ allowed: true, retryAfterMs: 0 });
-
-      const result = checkIpRateLimit('192.168.1.1');
-
-      expect(result).toEqual({ allowed: true });
-      expect(mockCheckRateLimitByIp).toHaveBeenCalledWith(
-        '192.168.1.1',
-        'setupUsername',
-        IP_RATE_LIMIT_MAX,
-        IP_RATE_LIMIT_WINDOW_MS,
-      );
-    });
-
-    it('returns allowed:false with retryAfterMs when rate limited', () => {
-      mockCheckRateLimitByIp.mockReturnValue({ allowed: false, retryAfterMs: 42000 });
-
-      const result = checkIpRateLimit('10.0.0.1');
-
-      expect(result).toEqual({ allowed: false, retryAfterMs: 42000 });
-    });
-
-    it('passes the correct action name to checkRateLimitByIp', () => {
-      mockCheckRateLimitByIp.mockReturnValue({ allowed: true, retryAfterMs: 0 });
-
-      checkIpRateLimit('127.0.0.1');
-
-      expect(mockCheckRateLimitByIp).toHaveBeenCalledWith(
-        '127.0.0.1',
-        'setupUsername',
-        expect.any(Number),
-        expect.any(Number),
-      );
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // checkUserRateLimit
-  // ---------------------------------------------------------------------------
-
-  describe('checkUserRateLimit', () => {
-    it('returns true when rate limit allows', async () => {
-      mockCheckRateLimit.mockResolvedValue({ allowed: true });
-
-      const result = await checkUserRateLimit('user-1');
-
-      expect(result).toBe(true);
-      expect(mockCheckRateLimit).toHaveBeenCalledWith(
-        'user-1',
-        'setupUsername',
-        USER_RATE_LIMIT_MAX,
-        USER_RATE_LIMIT_WINDOW_MS,
-      );
-    });
-
-    it('returns false when rate limit rejects', async () => {
-      mockCheckRateLimit.mockResolvedValue({ allowed: false });
-
-      const result = await checkUserRateLimit('user-2');
-
-      expect(result).toBe(false);
-    });
-
-    it('passes the correct action name to checkRateLimit', async () => {
-      mockCheckRateLimit.mockResolvedValue({ allowed: true });
-
-      await checkUserRateLimit('user-abc');
-
-      expect(mockCheckRateLimit).toHaveBeenCalledWith(
-        'user-abc',
-        'setupUsername',
-        expect.any(Number),
-        expect.any(Number),
-      );
-    });
   });
 
   // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { validateUsername, type UsernameValidationError } from '@/lib/username';
-import { isLameName } from '@/lib/lame-name';
+import { isLameName } from './lame-name';
 
 export function validateUsernameServer(
   username: string,

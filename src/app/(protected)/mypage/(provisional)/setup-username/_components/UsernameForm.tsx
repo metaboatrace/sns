@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { validateUsername, USERNAME_MAX_LENGTH } from '@/lib/username';
+import { validateUsername, USERNAME_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH } from '@/lib/username';
 
 export function UsernameForm() {
   const t = useTranslations('setupUsername');
@@ -103,7 +103,7 @@ export function UsernameForm() {
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder={t('displayNamePlaceholder')}
-          maxLength={50}
+          maxLength={DISPLAY_NAME_MAX_LENGTH}
         />
         <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
           <li>{t('displayNameCanChange')}</li>

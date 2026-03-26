@@ -1,14 +1,23 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getClientIp } from '@/lib/rate-limit';
-import { checkIpRateLimit, checkUserRateLimit, setupUsername } from '@/lib/services/username-setup';
+import { getClientIp, checkRateLimitByIp, checkRateLimit } from '@/lib/rate-limit';
+import { DISPLAY_NAME_MAX_LENGTH } from '@/lib/username';
+import { setupUsername } from '@/lib/services/username-setup';
+
+/** IP rate limit: 10 requests per 5 minutes */
+const IP_RATE_LIMIT_MAX = 10;
+const IP_RATE_LIMIT_WINDOW_MS = 300_000;
+
+/** User rate limit: 5 requests per 10 minutes */
+const USER_RATE_LIMIT_MAX = 5;
+const USER_RATE_LIMIT_WINDOW_MS = 600_000;
 
 export async function POST(request: Request) {
   // IP-based rate limiting (before auth)
   const clientIp = getClientIp(request);
-  const ipCheck = checkIpRateLimit(clientIp);
-  if (!ipCheck.allowed) {
-    const retryAfterSeconds = Math.ceil(ipCheck.retryAfterMs / 1000);
+  const ipResult = checkRateLimitByIp(clientIp, 'setupUsername', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
+  if (!ipResult.allowed) {
+    const retryAfterSeconds = Math.ceil(ipResult.retryAfterMs / 1000);
     return NextResponse.json(
       { error: 'rate_limited' },
       { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } },
@@ -25,7 +34,8 @@ export async function POST(request: Request) {
   }
 
   // User-ID-based rate limiting (after auth)
-  if (!(await checkUserRateLimit(user.id))) {
+  const userResult = await checkRateLimit(user.id, 'setupUsername', USER_RATE_LIMIT_MAX, USER_RATE_LIMIT_WINDOW_MS);
+  if (!userResult.allowed) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
   }
 
@@ -36,8 +46,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
   }
   const username = body.username?.trim().toLowerCase();
-  const MAX_DISPLAY_NAME_LENGTH = 50;
-  const displayName = body.displayName?.trim().slice(0, MAX_DISPLAY_NAME_LENGTH) || undefined;
+  const displayName = body.displayName?.trim().slice(0, DISPLAY_NAME_MAX_LENGTH) || undefined;
 
   if (!username) {
     return NextResponse.json({ error: 'username_required' }, { status: 400 });

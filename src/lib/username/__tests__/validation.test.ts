@@ -1,5 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { validateUsernameFormat, validateUsername } from '../validation';
+import {
+  validateUsernameFormat,
+  validateUsername,
+  USERNAME_MAX_LENGTH,
+  DISPLAY_NAME_MAX_LENGTH,
+} from '../validation';
+
+describe('constants', () => {
+  it('USERNAME_MAX_LENGTH is 20', () => {
+    expect(USERNAME_MAX_LENGTH).toBe(20);
+  });
+
+  it('DISPLAY_NAME_MAX_LENGTH is 50', () => {
+    expect(DISPLAY_NAME_MAX_LENGTH).toBe(50);
+  });
+});
 
 describe('validateUsernameFormat', () => {
   describe('valid usernames', () => {

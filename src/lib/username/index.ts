@@ -5,6 +5,7 @@ export {
   validateUsernameFormat,
   validateUsername,
   USERNAME_MAX_LENGTH,
+  DISPLAY_NAME_MAX_LENGTH,
   type UsernameFormatError,
   type UsernameValidationError,
 } from './validation';
