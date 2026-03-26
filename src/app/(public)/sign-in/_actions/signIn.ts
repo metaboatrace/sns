@@ -3,8 +3,6 @@
 import { type ActionResult, withRateLimit } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/server';
 
-export type { ActionResult };
-
 export const signIn = withRateLimit(
   { action: 'signIn', limit: 10, windowMs: 300_000 },
   async (email: string, password: string): Promise<ActionResult> => {
