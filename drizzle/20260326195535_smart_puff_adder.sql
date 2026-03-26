@@ -1,4 +1,4 @@
-CREATE TABLE "moderation_actions" (
+CREATE TABLE IF NOT EXISTS "moderation_actions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"actor_id" uuid NOT NULL,
 	"action" varchar(50) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "moderation_actions" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX "idx_moderation_actions_actor" ON "moderation_actions" USING btree ("actor_id");--> statement-breakpoint
-CREATE INDEX "idx_moderation_actions_target" ON "moderation_actions" USING btree ("target_type","target_id");--> statement-breakpoint
-CREATE INDEX "idx_moderation_actions_action" ON "moderation_actions" USING btree ("action");--> statement-breakpoint
-CREATE INDEX "idx_moderation_actions_created" ON "moderation_actions" USING btree ("created_at");
+CREATE INDEX IF NOT EXISTS "idx_moderation_actions_actor" ON "moderation_actions" USING btree ("actor_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_moderation_actions_target" ON "moderation_actions" USING btree ("target_type","target_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_moderation_actions_action" ON "moderation_actions" USING btree ("action");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_moderation_actions_created" ON "moderation_actions" USING btree ("created_at");
