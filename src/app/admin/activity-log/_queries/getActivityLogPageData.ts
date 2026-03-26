@@ -1,10 +1,7 @@
-import { desc, sql } from 'drizzle-orm';
-
-import { db, userActivityLog } from '@/lib/db';
+import { userActivityLog } from '@/lib/db';
 import type { Profile, UserActivityLog } from '@/lib/db';
-import { fetchProfileMap } from '@/lib/db/queries/profiles';
 
-import { getPaginationData } from '../../_lib/pagination';
+import { fetchPaginatedLogPage } from '../../_lib/paginated-query';
 
 export type ActivityLogPageData = {
   logs: UserActivityLog[];
@@ -14,24 +11,10 @@ export type ActivityLogPageData = {
 };
 
 export async function getActivityLogPageData(page: number): Promise<ActivityLogPageData> {
-  const [countResult] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(userActivityLog);
-  const { currentPage, totalPages, limit, offset } = getPaginationData(
+  return fetchPaginatedLogPage<UserActivityLog>(
+    userActivityLog,
+    userActivityLog.createdAt,
     page,
-    Number(countResult.count),
+    (logs) => [...new Set(logs.map((l) => l.userId))],
   );
-
-  const logs = await db
-    .select()
-    .from(userActivityLog)
-    .orderBy(desc(userActivityLog.createdAt))
-    .limit(limit)
-    .offset(offset);
-
-  const userIds = [...new Set(logs.map((l) => l.userId))];
-
-  const profileMap = await fetchProfileMap(userIds);
-
-  return { logs, profileMap, currentPage, totalPages };
 }
