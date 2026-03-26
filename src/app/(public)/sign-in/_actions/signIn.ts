@@ -1,26 +1,20 @@
 'use server';
 
-import { checkServerActionRateLimit } from '@/lib/rate-limit';
+import { type ActionResult, withRateLimit } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/server';
 
-/** IP rate limit: 10 requests per 5 minutes */
-const IP_RATE_LIMIT_MAX = 10;
-const IP_RATE_LIMIT_WINDOW_MS = 300_000;
+export type { ActionResult };
 
-export type SignInResult = { error: string } | { success: true };
+export const signIn = withRateLimit(
+  { action: 'signIn', limit: 10, windowMs: 300_000 },
+  async (email: string, password: string): Promise<ActionResult> => {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-export async function signIn(email: string, password: string): Promise<SignInResult> {
-  const allowed = await checkServerActionRateLimit('signIn', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
-  if (!allowed) {
-    return { error: 'rateLimited' };
-  }
+    if (error) {
+      return { error: 'invalidCredentials' };
+    }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    return { error: 'invalidCredentials' };
-  }
-
-  return { success: true };
-}
+    return { success: true };
+  },
+);
