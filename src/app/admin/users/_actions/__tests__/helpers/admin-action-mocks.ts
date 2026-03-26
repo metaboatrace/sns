@@ -89,6 +89,6 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
 
-vi.mock('../../getClientIp', () => ({
+vi.mock('@/lib/client-ip', () => ({
   getClientIp: () => Promise.resolve('127.0.0.1'),
 }));

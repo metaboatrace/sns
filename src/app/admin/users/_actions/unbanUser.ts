@@ -4,25 +4,19 @@ import { revalidatePath } from 'next/cache';
 
 import { eq } from 'drizzle-orm';
 
+import { getClientIp } from '@/lib/client-ip';
 import { db, moderationActions, profiles } from '@/lib/db';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-import { requireAdmin } from '../../_lib/auth';
 import { PERMANENT_BAN_DURATION } from '../../_lib/constants';
-import { getClientIp } from './getClientIp';
+import { validateAdminRequest } from '../../_lib/validate-admin-request';
 
-type UnbanUserResult = { success: true } | { error: string };
+import type { AdminActionResult } from '../../_lib/types';
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export async function unbanUser(targetUserId: string): Promise<UnbanUserResult> {
-  if (!UUID_REGEX.test(targetUserId)) {
-    return { error: 'invalidUserId' };
-  }
-
-  const auth = await requireAdmin();
-  if ('error' in auth) {
-    return auth;
+export async function unbanUser(targetUserId: string): Promise<AdminActionResult> {
+  const validation = await validateAdminRequest(targetUserId);
+  if ('error' in validation) {
+    return validation;
   }
 
   // 1. Read current bannedAt for rollback
@@ -57,7 +51,7 @@ export async function unbanUser(targetUserId: string): Promise<UnbanUserResult> 
         .where(eq(profiles.id, targetUserId));
 
       await tx.insert(moderationActions).values({
-        actorId: auth.userId,
+        actorId: validation.adminUserId,
         action: 'unban',
         targetType: 'user',
         targetId: targetUserId,
