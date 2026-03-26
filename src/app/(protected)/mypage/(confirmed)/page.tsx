@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { getProfileByUserId } from '@/lib/db/queries/profiles';
@@ -6,11 +5,9 @@ import { getProfileByUserId } from '@/lib/db/queries/profiles';
 export default async function MyPage() {
   const user = await getAuthenticatedUser();
   const t = await getTranslations('mypage');
-  const profile = await getProfileByUserId(user.id);
-
-  if (!profile) {
-    redirect('/mypage/setup-username');
-  }
+  // Profile existence is guaranteed by the parent (confirmed) layout guard.
+  // We fetch it here only to use the profile data.
+  const profile = (await getProfileByUserId(user.id))!;
 
   return (
     <div>
