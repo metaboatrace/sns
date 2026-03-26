@@ -15,6 +15,13 @@
       "when": 1774434194934,
       "tag": "20260325102314_create_rate_limit_events",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774522221131,
+      "tag": "20260326105021_polite_midnight",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 // Drizzle ORM schema definitions
-import { index, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { index, pgEnum, pgTable, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
 
 // Profiles
 export const profiles = pgTable('profiles', {
@@ -34,3 +34,21 @@ export const rateLimitEvents = pgTable(
 
 export type RateLimitEvent = typeof rateLimitEvents.$inferSelect;
 export type NewRateLimitEvent = typeof rateLimitEvents.$inferInsert;
+
+// App role enum
+export const appRoleEnum = pgEnum('app_role', ['admin', 'user']);
+
+// User Roles
+export const userRoles = pgTable(
+  'user_roles',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(), // references auth.users
+    role: appRoleEnum('role').notNull().default('user'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [unique('uq_user_role').on(table.userId, table.role)],
+);
+
+export type UserRole = typeof userRoles.$inferSelect;
+export type NewUserRole = typeof userRoles.$inferInsert;
