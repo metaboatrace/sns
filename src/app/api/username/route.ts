@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getClientIp, checkRateLimitByIp, checkRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest, checkRateLimitByIp, checkRateLimit } from '@/lib/rate-limit';
 import { DISPLAY_NAME_MAX_LENGTH } from '@/lib/username';
 import { setupUsername } from '@/lib/services/username-setup';
 
@@ -14,7 +14,7 @@ const USER_RATE_LIMIT_WINDOW_MS = 600_000;
 
 export async function POST(request: Request) {
   // IP-based rate limiting (before auth)
-  const clientIp = getClientIp(request);
+  const clientIp = getClientIpFromRequest(request);
   const ipResult = checkRateLimitByIp(clientIp, 'setupUsername', IP_RATE_LIMIT_MAX, IP_RATE_LIMIT_WINDOW_MS);
   if (!ipResult.allowed) {
     const retryAfterSeconds = Math.ceil(ipResult.retryAfterMs / 1000);

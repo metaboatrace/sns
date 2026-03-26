@@ -39,3 +39,15 @@ export async function getClientIp(): Promise<string> {
     'unknown',
   );
 }
+
+/**
+ * Extract the client IP address from a Request object.
+ * For use in Route Handlers.
+ */
+export function getClientIpFromRequest(request: Request): string {
+  return extractClientIp(
+    request.headers.get('x-real-ip'),
+    request.headers.get('x-forwarded-for'),
+    '127.0.0.1',
+  );
+}

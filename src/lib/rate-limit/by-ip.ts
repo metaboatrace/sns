@@ -11,17 +11,7 @@
  * unaffected by this limitation.
  */
 
-import { extractClientIp } from '@/lib/client-ip';
-
 const store = new Map<string, { count: number; resetAt: number }>();
-
-export function getClientIp(request: Request): string {
-  return extractClientIp(
-    request.headers.get('x-real-ip'),
-    request.headers.get('x-forwarded-for'),
-    '127.0.0.1',
-  );
-}
 
 export function checkRateLimitByIp(
   ip: string,

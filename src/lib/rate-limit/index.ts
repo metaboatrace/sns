@@ -1,3 +1,4 @@
 export { checkRateLimit } from './by-user';
-export { getClientIp, checkRateLimitByIp } from './by-ip';
+export { checkRateLimitByIp } from './by-ip';
+export { getClientIpFromRequest } from '@/lib/client-ip';
 export { checkServerActionRateLimit } from './server-action';

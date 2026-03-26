@@ -28,7 +28,7 @@ vi.mock('@/lib/db', () => ({
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
-  getClientIp: vi.fn().mockReturnValue('127.0.0.1'),
+  getClientIpFromRequest: vi.fn().mockReturnValue('127.0.0.1'),
   checkRateLimitByIp: (...args: unknown[]) => mockCheckRateLimitByIp(...args),
   checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
 }));
