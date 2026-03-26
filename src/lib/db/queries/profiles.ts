@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { db, profiles } from '@/lib/db';
 import type { Profile } from '@/lib/db';
 
@@ -22,6 +22,17 @@ export async function hasProfile(userId: string): Promise<boolean> {
     .where(eq(profiles.id, userId))
     .limit(1);
   return !!row;
+}
+
+/**
+ * Fetch profiles for the given user IDs and return them as a Map keyed by user ID.
+ */
+export async function fetchProfileMap(userIds: string[]): Promise<Map<string, Profile>> {
+  if (userIds.length === 0) {
+    return new Map();
+  }
+  const rows = await db.select().from(profiles).where(inArray(profiles.id, userIds));
+  return new Map(rows.map((p) => [p.id, p]));
 }
 
 /**
