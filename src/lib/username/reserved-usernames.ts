@@ -13,7 +13,8 @@
 
 const RESERVED_USERNAMES: ReadonlySet<string> = new Set([
   // ── 1. System / infrastructure ──
-  'admin',
+  // Note: "admin" is excluded from this list because it is reserved for use
+  // as an operator's own username.
   'administrator',
   'api',
   'auth',
