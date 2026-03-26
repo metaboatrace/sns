@@ -7,7 +7,7 @@ export async function checkRateLimit(
   limit: number,
   windowMs: number,
 ): Promise<{ allowed: boolean }> {
-  const windowStart = new Date(Date.now() - windowMs);
+  const windowStart = new Date(Date.now() - windowMs).toISOString();
 
   // Atomic: insert only if current count is below the limit
   const result = await db.execute(
@@ -28,6 +28,8 @@ export async function checkRateLimit(
     `
   );
 
-  const allowed = result.rows?.[0]?.allowed ?? false;
-  return { allowed: Boolean(allowed) };
+  // db.execute() with drizzle-orm/postgres-js returns an array of rows directly,
+  // not a { rows: [...] } wrapper.
+  const row = result[0] as { allowed: boolean } | undefined;
+  return { allowed: Boolean(row?.allowed ?? false) };
 }
