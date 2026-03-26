@@ -40,7 +40,13 @@
     },
     "errors": {
       "invalidUserId": "無効なユーザーIDです",
-      "unexpected": "予期しないエラーが発生しました"
+      "unexpected": "予期しないエラーが発生しました",
+      "cannotBanSelf": "自分自身をBANすることはできません",
+      "failedToBan": "BANに失敗しました",
+      "reasonRequired": "理由を入力してください",
+      "reasonTooLong": "理由は1000文字以内で入力してください",
+      "failedToUnban": "BAN解除に失敗しました",
+      "unauthorized": "権限がありません"
     },
     "auditLogTable": {
       "actor": "操作者",
