@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { resetMockDb } from '@/test-utils/mock-db';
 
 const { mockGetUser, mockDb, mockCheckRateLimitByIp } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
@@ -57,12 +58,7 @@ function buildRequest(body?: unknown): Request {
 describe('POST /api/username', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDb.select.mockReturnThis();
-    mockDb.from.mockReturnThis();
-    mockDb.where.mockReturnThis();
-    mockDb.limit.mockResolvedValue([]);
-    mockDb.insert.mockReturnThis();
-    mockDb.values.mockResolvedValue(undefined);
+    resetMockDb(mockDb);
     mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } });
     mockCheckRateLimitByIp.mockReturnValue({ allowed: true, retryAfterMs: 0 });
   });

@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { getAuthenticatedUser } from "@/lib/auth";
-import { db, profiles } from "@/lib/db";
+import { isUserBanned } from "@/lib/db/queries/profiles";
 
 export default async function ProtectedLayout({
     children,
@@ -13,13 +12,7 @@ export default async function ProtectedLayout({
     const user = await getAuthenticatedUser();
 
     // BAN check
-    const [profile] = await db
-        .select({ bannedAt: profiles.bannedAt })
-        .from(profiles)
-        .where(eq(profiles.id, user.id))
-        .limit(1);
-
-    if (profile?.bannedAt) {
+    if (await isUserBanned(user.id)) {
         redirect("/banned");
     }
 

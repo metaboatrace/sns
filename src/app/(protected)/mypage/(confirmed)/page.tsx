@@ -1,16 +1,11 @@
 import { getTranslations } from 'next-intl/server';
-import { eq } from 'drizzle-orm';
 import { getAuthenticatedUser } from '@/lib/auth';
-import { db, profiles } from '@/lib/db';
+import { getProfileByUserId } from '@/lib/db/queries/profiles';
 
 export default async function MyPage() {
   const user = await getAuthenticatedUser();
   const t = await getTranslations('mypage');
-  const [profile] = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.id, user.id))
-    .limit(1);
+  const profile = await getProfileByUserId(user.id);
 
   return (
     <div>

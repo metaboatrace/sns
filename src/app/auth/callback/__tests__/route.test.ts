@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { resetMockDb } from '@/test-utils/mock-db';
 
 const { mockExchangeCodeForSession, mockVerifyOtp, mockGetUser, mockDb } = vi.hoisted(() => ({
   mockExchangeCodeForSession: vi.fn(),
@@ -40,10 +41,7 @@ function buildRequest(params: Record<string, string> = {}): Request {
 describe('GET /auth/callback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDb.select.mockReturnThis();
-    mockDb.from.mockReturnThis();
-    mockDb.where.mockReturnThis();
-    mockDb.limit.mockResolvedValue([]);
+    resetMockDb(mockDb);
   });
 
   it('redirects to /mypage/setup-username when OAuth succeeds but no profile exists', async () => {

@@ -5,14 +5,19 @@ import { readdirSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import postgres from 'postgres';
 import { fileURLToPath } from 'url';
+import { getDatabaseUrl } from '../src/lib/db/connection';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Use the same env var priority as drizzle.config.ts
-const connectionString =
-  process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL || process.env.DATABASE_URL;
+const connectionString = getDatabaseUrl({ preferNonPooling: true });
 
-if (!connectionString) {
+// When no env vars are set, getDatabaseUrl returns the local default.
+// In CI/production, if none of the expected env vars are present, skip migration.
+if (
+  !process.env.POSTGRES_URL_NON_POOLING &&
+  !process.env.POSTGRES_URL &&
+  !process.env.DATABASE_URL
+) {
   console.log('No database connection configured. Skipping migration.');
   process.exit(0);
 }

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
 
 import { createClient } from '@/lib/supabase/server';
-import { db, profiles } from '@/lib/db';
+import { hasProfile } from '@/lib/db/queries/profiles';
 
 const VALID_OTP_TYPES = ['signup', 'recovery'] as const;
 type ValidOtpType = (typeof VALID_OTP_TYPES)[number];
@@ -51,13 +50,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
   }
 
-  const [profile] = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(eq(profiles.id, user.id))
-    .limit(1);
-
-  if (!profile) {
+  if (!(await hasProfile(user.id))) {
     return NextResponse.redirect(`${origin}/mypage/setup-username`);
   }
 

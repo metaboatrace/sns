@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
 import { db, profiles } from '@/lib/db';
 import { createClient } from '@/lib/supabase/server';
 import { validateUsername } from '@/lib/username';
 import { isLameName } from '@/lib/lame-name';
 import { getClientIp, checkRateLimitByIp } from '@/lib/rate-limit-ip';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { hasProfile } from '@/lib/db/queries/profiles';
 
 export async function POST(request: Request) {
   // IP-based rate limiting (before auth)
@@ -57,13 +57,7 @@ export async function POST(request: Request) {
   }
 
   // Check if the user already has a profile
-  const existing = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(eq(profiles.id, user.id))
-    .limit(1);
-
-  if (existing.length > 0) {
+  if (await hasProfile(user.id)) {
     return NextResponse.json({ error: 'already_set' }, { status: 409 });
   }
 
