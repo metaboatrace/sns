@@ -8,11 +8,18 @@ import { db, moderationActions, profiles } from '@/lib/db';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 import { requireAdmin } from '../../_lib/auth';
+import { PERMANENT_BAN_DURATION } from '../../_lib/constants';
 import { getClientIp } from './getClientIp';
 
 type BanUserResult = { success: true } | { error: string };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function banUser(targetUserId: string, reason: string): Promise<BanUserResult> {
+  if (!UUID_REGEX.test(targetUserId)) {
+    return { error: 'invalidUserId' };
+  }
+
   const auth = await requireAdmin();
   if ('error' in auth) {
     return auth;
@@ -35,7 +42,7 @@ export async function banUser(targetUserId: string, reason: string): Promise<Ban
   // 1. Ban at Supabase Auth level first (external API, can't be in DB transaction)
   const adminClient = createAdminClient();
   const { error } = await adminClient.auth.admin.updateUserById(targetUserId, {
-    ban_duration: '876000h',
+    ban_duration: PERMANENT_BAN_DURATION,
   });
 
   if (error) {
@@ -65,9 +72,13 @@ export async function banUser(targetUserId: string, reason: string): Promise<Ban
     });
   } catch {
     // Rollback Supabase Auth ban if DB transaction fails
-    await adminClient.auth.admin.updateUserById(targetUserId, {
-      ban_duration: 'none',
-    });
+    try {
+      await adminClient.auth.admin.updateUserById(targetUserId, {
+        ban_duration: 'none',
+      });
+    } catch (rollbackError) {
+      console.error(`Failed to rollback Supabase Auth ban for user ${targetUserId}:`, rollbackError);
+    }
     return { error: 'failedToBan' };
   }
 
