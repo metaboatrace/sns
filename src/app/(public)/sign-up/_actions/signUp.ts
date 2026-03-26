@@ -5,8 +5,6 @@ import { type ActionResult, withRateLimit } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/server';
 import { getPasswordValidationError } from '@/lib/validations/password';
 
-export type { ActionResult };
-
 export const signUp = withRateLimit(
   { action: 'signUp', limit: 5, windowMs: 300_000 },
   async (email: string, password: string): Promise<ActionResult> => {

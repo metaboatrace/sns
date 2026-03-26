@@ -1,7 +1,18 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getOptionalUser } from '@/lib/auth';
 import { isAdmin } from '@/lib/db/queries/user-roles';
+
+import { getLabel } from './_lib/labels';
+
+const navItems = [
+  { href: '/admin', labelKey: 'admin.dashboard' },
+  { href: '/admin/users', labelKey: 'admin.users' },
+  { href: '/admin/audit-log', labelKey: 'admin.auditLog' },
+  { href: '/admin/activity-log', labelKey: 'admin.activityLog' },
+  { href: '/', labelKey: 'admin.backToSite' },
+] as const;
 
 export default async function AdminLayout({
   children,
@@ -19,26 +30,20 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+    <div className="flex h-screen bg-background">
+      <aside className="w-64 bg-secondary border-r border-border">
         <div className="h-full px-3 py-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
-            <li>
-              <a
-                href="/admin"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <span className="ml-3">Dashboard</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="/"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <span className="ml-3">Back to Site</span>
-              </a>
-            </li>
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
+                >
+                  <span className="ml-3">{getLabel(item.labelKey)}</span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </aside>

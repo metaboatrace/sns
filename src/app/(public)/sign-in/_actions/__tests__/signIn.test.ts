@@ -8,6 +8,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
 }));
 
+vi.mock('@/lib/activity-log', () => ({
+  logActivityEvent: vi.fn(),
+}));
+
 import { signIn } from '../signIn';
 import { checkServerActionRateLimit } from '@/lib/rate-limit';
 import { createClient } from '@/lib/supabase/server';
@@ -24,7 +28,10 @@ describe('signIn', () => {
     mockedCreateClient.mockResolvedValue({
       auth: { signInWithPassword: mockSignInWithPassword },
     } as unknown as Awaited<ReturnType<typeof createClient>>);
-    mockSignInWithPassword.mockResolvedValue({ error: null });
+    mockSignInWithPassword.mockResolvedValue({
+      error: null,
+      data: { user: { id: 'user-1' } },
+    });
   });
 
   it('returns success when sign in succeeds', async () => {

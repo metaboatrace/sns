@@ -4,7 +4,7 @@ import { isReservedUsername } from '../reserved-usernames';
 describe('isReservedUsername', () => {
   describe('returns true for reserved usernames', () => {
     const reservedCases = [
-      'admin',
+      'administrator',
       'api',
       'root',
       'system',
@@ -23,12 +23,12 @@ describe('isReservedUsername', () => {
   });
 
   describe('case insensitivity', () => {
-    it('treats "Admin" as reserved', () => {
-      expect(isReservedUsername('Admin')).toBe(true);
+    it('treats "Administrator" as reserved', () => {
+      expect(isReservedUsername('Administrator')).toBe(true);
     });
 
-    it('treats "ADMIN" as reserved', () => {
-      expect(isReservedUsername('ADMIN')).toBe(true);
+    it('treats "ADMINISTRATOR" as reserved', () => {
+      expect(isReservedUsername('ADMINISTRATOR')).toBe(true);
     });
 
     it('treats "BoatRace" as reserved', () => {

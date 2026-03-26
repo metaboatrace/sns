@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { logActivityEvent } from '@/lib/activity-log';
 import { createClient } from '@/lib/supabase/server';
 import { hasProfile } from '@/lib/db/queries/profiles';
 
@@ -44,6 +45,8 @@ export async function GET(request: Request) {
   if (!user) {
     return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
   }
+
+  logActivityEvent({ userId: user.id, action: 'login' });
 
   if (!(await hasProfile(user.id))) {
     return NextResponse.redirect(`${origin}/mypage/setup-username`);

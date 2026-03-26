@@ -1,0 +1,75 @@
+{
+  "admin": {
+    "users": "ユーザー一覧",
+    "dashboard": "ダッシュボード",
+    "dashboardTitle": "管理ダッシュボード",
+    "dashboardDescription": "管理エリアへようこそ。",
+    "backToSite": "サイトに戻る",
+    "auditLog": "監査ログ",
+    "activityLog": "アクティビティログ",
+    "dialog": {
+      "cancel": "キャンセル",
+      "processing": "処理中..."
+    },
+    "usersTable": {
+      "email": "メール",
+      "username": "ユーザー名",
+      "role": "ロール",
+      "status": "ステータス",
+      "createdAt": "作成日",
+      "active": "有効",
+      "banned": "停止中",
+      "anonymous": "匿名",
+      "defaultRole": "user",
+      "noUsersFound": "ユーザーが見つかりませんでした",
+      "actions": "アクション",
+      "ban": "BAN",
+      "unban": "BAN解除"
+    },
+    "banDialog": {
+      "title": "ユーザーをBANする",
+      "reasonLabel": "BAN理由",
+      "reasonPlaceholder": "BANの理由を入力してください...",
+      "reasonRequired": "理由を入力してください",
+      "confirm": "BANを実行"
+    },
+    "unbanDialog": {
+      "title": "BAN解除",
+      "description": "このユーザーのBANを解除しますか？解除するとプラットフォームへのフルアクセスが復元されます。",
+      "confirm": "BAN解除を実行"
+    },
+    "errors": {
+      "invalidUserId": "無効なユーザーIDです",
+      "unexpected": "予期しないエラーが発生しました",
+      "cannotBanSelf": "自分自身をBANすることはできません",
+      "failedToBan": "BANに失敗しました",
+      "reasonRequired": "理由を入力してください",
+      "reasonTooLong": "理由は1000文字以内で入力してください",
+      "failedToUnban": "BAN解除に失敗しました",
+      "unauthorized": "権限がありません"
+    },
+    "auditLogTable": {
+      "actor": "操作者",
+      "action": "アクション",
+      "target": "対象",
+      "reason": "理由",
+      "ipAddress": "IPアドレス",
+      "createdAt": "日時",
+      "noLogsFound": "監査ログが見つかりませんでした"
+    },
+    "activityLogTable": {
+      "user": "ユーザー",
+      "action": "アクション",
+      "targetType": "対象タイプ",
+      "targetId": "対象ID",
+      "metadata": "メタデータ",
+      "createdAt": "日時",
+      "noLogsFound": "アクティビティログが見つかりませんでした"
+    }
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "ariaLabel": "ページネーション"
+  }
+}

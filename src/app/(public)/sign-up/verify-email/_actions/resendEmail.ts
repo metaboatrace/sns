@@ -3,8 +3,6 @@
 import { type ActionResult, withRateLimit } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/server';
 
-export type { ActionResult };
-
 export const resendEmail = withRateLimit(
   { action: 'resendEmail', limit: 3, windowMs: 300_000 },
   async (email: string): Promise<ActionResult> => {

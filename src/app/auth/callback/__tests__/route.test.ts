@@ -28,6 +28,10 @@ vi.mock('@/lib/db', () => ({
   profiles: { id: 'id' },
 }));
 
+vi.mock('@/lib/activity-log', () => ({
+  logActivityEvent: vi.fn(),
+}));
+
 import { GET } from '../route';
 
 function buildRequest(params: Record<string, string> = {}): Request {
