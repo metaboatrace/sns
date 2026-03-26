@@ -16,3 +16,5 @@ export const getOptionalUser = cache(async () => {
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 });
+
+export { redirectIfAuthenticated } from './redirect-if-authenticated';
