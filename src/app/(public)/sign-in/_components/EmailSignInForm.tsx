@@ -5,7 +5,10 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
+import { Button } from '@/components/ui/button';
 import { FormErrorMessage } from '@/components/ui/form-error-message';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import { signIn } from '../_actions/signIn';
 
@@ -53,44 +56,38 @@ export function EmailSignInForm() {
       {error && <FormErrorMessage message={error} />}
 
       <div>
-        <label htmlFor="signin-email" className="block text-sm font-medium text-black dark:text-zinc-50 mb-1">
+        <Label htmlFor="signin-email" className="mb-1">
           {t('emailLabel')}
-        </label>
-        <input
+        </Label>
+        <Input
           id="signin-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-black dark:text-zinc-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           placeholder={t('emailPlaceholder')}
         />
       </div>
 
       <div>
-        <label htmlFor="signin-password" className="block text-sm font-medium text-black dark:text-zinc-50 mb-1">
+        <Label htmlFor="signin-password" className="mb-1">
           {t('passwordLabel')}
-        </label>
-        <input
+        </Label>
+        <Input
           id="signin-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="current-password"
-          className="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-black dark:text-zinc-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           placeholder={t('passwordPlaceholder')}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={isLoading} className="w-full">
         {isLoading ? t('emailSignInLoading') : t('emailSignIn')}
-      </button>
+      </Button>
     </form>
   );
 }
