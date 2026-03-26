@@ -44,6 +44,22 @@ export default async function AdminLayout({
             </li>
             <li>
               <Link
+                href="/admin/audit-log"
+                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
+              >
+                <span className="ml-3">{getLabel('admin.auditLog')}</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/admin/activity-log"
+                className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
+              >
+                <span className="ml-3">{getLabel('admin.activityLog')}</span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/"
                 className="flex items-center p-2 text-foreground rounded-lg hover:bg-background"
               >

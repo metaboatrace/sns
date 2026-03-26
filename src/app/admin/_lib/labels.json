@@ -3,6 +3,8 @@
     "users": "ユーザー一覧",
     "dashboard": "ダッシュボード",
     "backToSite": "サイトに戻る",
+    "auditLog": "監査ログ",
+    "activityLog": "アクティビティログ",
     "usersTable": {
       "email": "メール",
       "username": "ユーザー名",
@@ -17,6 +19,24 @@
       "actions": "アクション",
       "ban": "BAN",
       "unban": "BAN解除"
+    },
+    "auditLogTable": {
+      "actor": "操作者",
+      "action": "アクション",
+      "target": "対象",
+      "reason": "理由",
+      "ipAddress": "IPアドレス",
+      "createdAt": "日時",
+      "noLogsFound": "監査ログが見つかりませんでした"
+    },
+    "activityLogTable": {
+      "user": "ユーザー",
+      "action": "アクション",
+      "targetType": "対象タイプ",
+      "targetId": "対象ID",
+      "metadata": "メタデータ",
+      "createdAt": "日時",
+      "noLogsFound": "アクティビティログが見つかりませんでした"
     }
   },
   "pagination": {
