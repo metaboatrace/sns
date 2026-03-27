@@ -22,8 +22,8 @@ export function AdminDataTable<T>({
       <table className="w-full text-sm">
         <thead className="bg-secondary">
           <tr>
-            {headers.map((header) => (
-              <th key={String(header)} className="text-left px-4 py-3 font-medium">
+            {headers.map((header, index) => (
+              <th key={index} className="text-left px-4 py-3 font-medium">
                 {header}
               </th>
             ))}
