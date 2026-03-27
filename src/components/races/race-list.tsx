@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { Race, Stadium } from "@/types/boatrace";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,9 +19,10 @@ type RaceListProps = {
 
 function getStadiumName(
   stadiums: Stadium[],
-  telCode: number
+  telCode: number,
+  fallbackLabel: string
 ): string {
-  return stadiums.find((s) => s.tel_code === telCode)?.name ?? `場コード${telCode}`;
+  return stadiums.find((s) => s.tel_code === telCode)?.name ?? fallbackLabel;
 }
 
 function groupRacesByStadium(races: Race[]): Map<number, Race[]> {
@@ -46,11 +48,13 @@ function formatDeadline(deadlineAt: string): string {
   });
 }
 
-export function RaceList({ races, stadiums, date }: RaceListProps) {
+export async function RaceList({ races, stadiums, date }: RaceListProps) {
+  const t = await getTranslations("races");
+
   if (races.length === 0) {
     return (
       <div className="py-12 text-center text-muted-foreground">
-        {date} のレースデータがありません。
+        {t("noRacesForDate", { date })}
       </div>
     );
   }
@@ -62,17 +66,17 @@ export function RaceList({ races, stadiums, date }: RaceListProps) {
       {Array.from(grouped.entries()).map(([telCode, stadiumRaces]) => (
         <Card key={telCode}>
           <CardHeader>
-            <CardTitle>{getStadiumName(stadiums, telCode)}</CardTitle>
+            <CardTitle>{getStadiumName(stadiums, telCode, t("stadiumFallback", { telCode }))}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16">R</TableHead>
-                  <TableHead>レース名</TableHead>
-                  <TableHead className="w-24">締切</TableHead>
-                  <TableHead className="w-20">周回</TableHead>
-                  <TableHead className="w-24">状態</TableHead>
+                  <TableHead className="w-16">{t("raceNumberHeader")}</TableHead>
+                  <TableHead>{t("raceNameHeader")}</TableHead>
+                  <TableHead className="w-24">{t("deadlineHeader")}</TableHead>
+                  <TableHead className="w-20">{t("lapsHeader")}</TableHead>
+                  <TableHead className="w-24">{t("statusHeader")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -88,20 +92,20 @@ export function RaceList({ races, stadiums, date }: RaceListProps) {
                       <div className="flex items-center gap-2">
                         <span>{race.title}</span>
                         {race.is_course_fixed && (
-                          <Badge variant="secondary">進入固定</Badge>
+                          <Badge variant="secondary">{t("courseFixed")}</Badge>
                         )}
                         {race.is_stabilizer_used && (
-                          <Badge variant="outline">安定板</Badge>
+                          <Badge variant="outline">{t("stabilizerUsed")}</Badge>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>{formatDeadline(race.betting_deadline_at)}</TableCell>
-                    <TableCell>{race.number_of_laps}周</TableCell>
+                    <TableCell>{t("laps", { count: race.number_of_laps })}</TableCell>
                     <TableCell>
                       {race.is_canceled ? (
-                        <Badge variant="destructive">中止</Badge>
+                        <Badge variant="destructive">{t("canceled")}</Badge>
                       ) : (
-                        <Badge variant="default">予定</Badge>
+                        <Badge variant="default">{t("scheduled")}</Badge>
                       )}
                     </TableCell>
                   </TableRow>

@@ -111,5 +111,22 @@
     "mypage": {
         "title": "マイページ",
         "welcome": "ようこそ、{username}さん"
+    },
+    "races": {
+        "title": "レース一覧",
+        "metaDescription": "最新のボートレース一覧を表示します。各場ごとのレース情報、締切時間、状態を確認できます。",
+        "noData": "レースデータが見つかりません。",
+        "noRacesForDate": "{date} のレースデータがありません。",
+        "raceNumberHeader": "R",
+        "raceNameHeader": "レース名",
+        "deadlineHeader": "締切",
+        "lapsHeader": "周回",
+        "statusHeader": "状態",
+        "courseFixed": "進入固定",
+        "stabilizerUsed": "安定板",
+        "canceled": "中止",
+        "scheduled": "予定",
+        "laps": "{count}周",
+        "stadiumFallback": "場コード{telCode}"
     }
 }
