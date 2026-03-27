@@ -85,10 +85,15 @@ describe('signUp', () => {
     expect(mockSignUp).not.toHaveBeenCalled();
   });
 
-  it('passes empty email to Supabase (server-side validation)', async () => {
-    mockSignUp.mockResolvedValue({ error: { code: 'validation_failed' } });
+  it('returns invalidEmail for empty email', async () => {
     const result = await signUp('', 'abc123');
-    expect(result).toEqual({ error: 'signUpFailed' });
-    expect(mockSignUp).toHaveBeenCalled();
+    expect(result).toEqual({ error: 'invalidEmail' });
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it('returns invalidEmail for malformed email', async () => {
+    const result = await signUp('not-an-email', 'abc123');
+    expect(result).toEqual({ error: 'invalidEmail' });
+    expect(mockSignUp).not.toHaveBeenCalled();
   });
 });

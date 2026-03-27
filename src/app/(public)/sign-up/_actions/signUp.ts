@@ -3,11 +3,16 @@
 import { SITE_URL } from '@/config';
 import { type ActionResult, withRateLimit } from '@/lib/actions';
 import { createClient } from '@/lib/supabase/server';
+import { isValidEmail } from '@/lib/validations/email';
 import { getPasswordValidationError } from '@/lib/validations/password';
 
 export const signUp = withRateLimit(
   { action: 'signUp', limit: 5, windowMs: 300_000 },
   async (email: string, password: string): Promise<ActionResult> => {
+    if (!isValidEmail(email)) {
+      return { error: 'invalidEmail' };
+    }
+
     const passwordError = getPasswordValidationError(password);
     if (passwordError) {
       return { error: `password:${passwordError}` };
