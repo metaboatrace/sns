@@ -26,7 +26,7 @@ describe('unbanUser', () => {
 
   it('should return unauthorized when user is not admin', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'user' }]);
+    mockSelectFromWhere.mockReturnValue([]);
 
     const result = await unbanUser(targetUserId);
     expect(result).toEqual({ error: 'unauthorized' });
@@ -35,7 +35,7 @@ describe('unbanUser', () => {
   it('should successfully unban a user', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
@@ -50,7 +50,7 @@ describe('unbanUser', () => {
   it('should return failedToUnban without touching DB if Supabase Auth unban fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById.mockResolvedValue({ error: new Error('Auth error') });
 
@@ -72,7 +72,7 @@ describe('unbanUser', () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     // First call returns admin role, second call returns empty array (no profile found)
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
@@ -88,7 +88,7 @@ describe('unbanUser', () => {
   it('should still succeed when unbanning a user who is not currently banned', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: null }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
@@ -100,7 +100,7 @@ describe('unbanUser', () => {
   it('should insert a moderation_actions record with correct fields on successful unban', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
@@ -118,7 +118,7 @@ describe('unbanUser', () => {
   it('should NOT insert moderation_actions when Supabase Auth unban fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById.mockResolvedValue({ error: new Error('Auth error') });
 
@@ -130,7 +130,7 @@ describe('unbanUser', () => {
   it('should return failedToUnban without DB changes when Supabase Auth unban fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById.mockResolvedValue({ error: new Error('Auth error') });
 
@@ -143,7 +143,7 @@ describe('unbanUser', () => {
   it('should use db.transaction to wrap profile update and audit log atomically', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
@@ -156,7 +156,7 @@ describe('unbanUser', () => {
     const originalBannedAt = new Date('2024-01-01');
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: originalBannedAt }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
     mockTransaction.mockRejectedValueOnce(new Error('DB transaction failed'));
@@ -177,7 +177,7 @@ describe('unbanUser', () => {
   it('should restore null bannedAt in rollback when user was not previously banned', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: null }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
     mockTransaction.mockRejectedValueOnce(new Error('DB transaction failed'));
@@ -193,7 +193,7 @@ describe('unbanUser', () => {
   it('should return failedToUnban even when Auth rollback also fails (double failure)', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
     mockSelectFromWhere
-      .mockReturnValueOnce([{ role: 'admin' }])
+      .mockReturnValueOnce([{ id: 'some-id' }])
       .mockReturnValueOnce([{ bannedAt: new Date('2024-01-01') }]);
     mockUpdateUserById
       .mockResolvedValueOnce({ error: null })

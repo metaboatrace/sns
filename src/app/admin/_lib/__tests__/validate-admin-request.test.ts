@@ -85,7 +85,7 @@ describe('validateAdminRequest', () => {
 
   it('should return unauthorized when user is not admin', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'user' }]);
+    mockSelectFromWhere.mockReturnValue([]);
 
     const result = await validateAdminRequest(validTargetUserId);
     expect(result).toEqual({ error: 'unauthorized' });
@@ -103,7 +103,7 @@ describe('validateAdminRequest', () => {
 
   it('should return adminUserId when UUID is valid and user is admin', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const result = await validateAdminRequest(validTargetUserId);
     expect(result).toEqual({ adminUserId });
@@ -111,7 +111,7 @@ describe('validateAdminRequest', () => {
 
   it('should accept uppercase UUID', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const uppercaseUuid = 'B0000000-0000-0000-0000-000000000001';
     const result = await validateAdminRequest(uppercaseUuid);

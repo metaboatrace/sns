@@ -56,7 +56,7 @@ describe('requireAdmin', () => {
 
   it('should return unauthorized when user role is not admin', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'user' }]);
+    mockSelectFromWhere.mockReturnValue([]);
 
     const result = await requireAdmin();
     expect(result).toEqual({ error: 'unauthorized' });
@@ -64,7 +64,7 @@ describe('requireAdmin', () => {
 
   it('should return userId when user is admin', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const result = await requireAdmin();
     expect(result).toEqual({ userId: adminUserId });

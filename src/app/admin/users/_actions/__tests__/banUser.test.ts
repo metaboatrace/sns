@@ -26,7 +26,7 @@ describe('banUser', () => {
 
   it('should return unauthorized when user is not admin', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'user' }]);
+    mockSelectFromWhere.mockReturnValue([]);
 
     const result = await banUser(targetUserId, 'spam');
     expect(result).toEqual({ error: 'unauthorized' });
@@ -34,7 +34,7 @@ describe('banUser', () => {
 
   it('should return cannotBanSelf when admin tries to ban themselves', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const result = await banUser(adminUserId, 'test');
     expect(result).toEqual({ error: 'cannotBanSelf' });
@@ -42,7 +42,7 @@ describe('banUser', () => {
 
   it('should return reasonRequired when reason is empty', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const result = await banUser(targetUserId, '   ');
     expect(result).toEqual({ error: 'reasonRequired' });
@@ -50,7 +50,7 @@ describe('banUser', () => {
 
   it('should successfully ban a user', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
     const result = await banUser(targetUserId, 'Spamming');
@@ -62,7 +62,7 @@ describe('banUser', () => {
 
   it('should return failedToBan if Supabase Auth ban fails without touching DB', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: new Error('Auth error') });
 
     const result = await banUser(targetUserId, 'Spamming');
@@ -81,7 +81,7 @@ describe('banUser', () => {
 
   it('should return reasonRequired when reason is only whitespace after trim', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const result = await banUser(targetUserId, '\t\n  ');
     expect(result).toEqual({ error: 'reasonRequired' });
@@ -89,7 +89,7 @@ describe('banUser', () => {
 
   it('should accept reason with special characters', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
     const result = await banUser(targetUserId, 'Spam <script>alert("xss")</script> & abuse');
@@ -98,7 +98,7 @@ describe('banUser', () => {
 
   it('should return reasonTooLong when reason exceeds 1000 characters', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const longReason = 'a'.repeat(1001);
     const result = await banUser(targetUserId, longReason);
@@ -108,7 +108,7 @@ describe('banUser', () => {
 
   it('should accept reason that is exactly 1000 characters (boundary)', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
     const exactReason = 'a'.repeat(1000);
@@ -119,7 +119,7 @@ describe('banUser', () => {
 
   it('should return reasonTooLong when reason is exactly 1001 characters (boundary)', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
 
     const overReason = 'a'.repeat(1001);
     const result = await banUser(targetUserId, overReason);
@@ -141,7 +141,7 @@ describe('banUser', () => {
 
   it('should insert a moderation_actions record with correct fields on successful ban', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
     await banUser(targetUserId, 'Spamming');
@@ -158,7 +158,7 @@ describe('banUser', () => {
 
   it('should NOT insert moderation_actions when Supabase Auth ban fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: new Error('Auth error') });
 
     await banUser(targetUserId, 'Spamming');
@@ -168,7 +168,7 @@ describe('banUser', () => {
 
   it('should trim the reason before storing in moderation_actions', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
     await banUser(targetUserId, '  Spamming  ');
@@ -182,7 +182,7 @@ describe('banUser', () => {
 
   it('should use db.transaction to wrap profile update and audit log atomically', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
 
     await banUser(targetUserId, 'Spamming');
@@ -192,7 +192,7 @@ describe('banUser', () => {
 
   it('should rollback Auth ban when DB transaction fails', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById.mockResolvedValue({ error: null });
     mockTransaction.mockRejectedValueOnce(new Error('DB transaction failed'));
 
@@ -210,7 +210,7 @@ describe('banUser', () => {
 
   it('should return failedToBan even when Auth rollback also fails (double failure)', async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: adminUserId } } });
-    mockSelectFromWhere.mockReturnValue([{ role: 'admin' }]);
+    mockSelectFromWhere.mockReturnValue([{ id: 'some-id' }]);
     mockUpdateUserById
       .mockResolvedValueOnce({ error: null })
       .mockRejectedValueOnce(new Error('Auth rollback failed'));
