@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useId } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { getLabel } from '../_lib/labels';
 
 type ConfirmationDialogProps = {
@@ -11,7 +12,7 @@ type ConfirmationDialogProps = {
   title: string;
   description?: string;
   confirmLabel: string;
-  confirmClassName?: string;
+  confirmVariant?: 'default' | 'destructive';
   isPending: boolean;
   error: string | null;
   children?: ReactNode;
@@ -24,7 +25,7 @@ export function ConfirmationDialog({
   title,
   description,
   confirmLabel,
-  confirmClassName = 'bg-primary text-primary-foreground hover:bg-primary/90',
+  confirmVariant = 'default',
   isPending,
   error,
   children,
@@ -69,22 +70,24 @@ export function ConfirmationDialog({
         {error && <p className="text-destructive text-sm mt-2">{error}</p>}
 
         <div className="flex justify-end gap-2 mt-4">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded bg-card border border-border text-foreground hover:bg-secondary transition-colors"
             disabled={isPending}
           >
             {getLabel('admin.dialog.cancel')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={confirmVariant}
+            size="sm"
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm rounded transition-colors disabled:opacity-50 ${confirmClassName}`}
             disabled={isPending}
           >
             {isPending ? getLabel('admin.dialog.processing') : confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

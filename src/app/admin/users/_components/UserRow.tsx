@@ -39,7 +39,7 @@ export function UserRow({ user, profileMap, roleMap, currentUserId }: UserRowPro
       </td>
       <td className="px-4 py-3">
         {!isCurrentUser && profile && (
-          <>{isBanned ? <UnbanButton userId={user.id} /> : <BanButton userId={user.id} />}</>
+          isBanned ? <UnbanButton userId={user.id} /> : <BanButton userId={user.id} />
         )}
       </td>
     </tr>
