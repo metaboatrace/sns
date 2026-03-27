@@ -2,7 +2,7 @@ import type { User } from '@supabase/supabase-js';
 
 import type { Profile } from '@/lib/db';
 
-import { Badge } from '../../_components/Badge';
+import { Badge } from '@/components/ui/badge';
 import { formatDate } from '../../_lib/date';
 import { getLabel } from '../../_lib/labels';
 
@@ -27,7 +27,7 @@ export function UserRow({ user, profileMap, roleMap, currentUserId }: UserRowPro
       <td className="px-4 py-3">{user.email ?? '-'}</td>
       <td className="px-4 py-3">{profile?.username ?? '-'}</td>
       <td className="px-4 py-3">
-        <Badge variant={roleMap.get(user.id) === 'admin' ? 'primary' : 'secondary'}>
+        <Badge variant={roleMap.get(user.id) === 'admin' ? 'default' : 'secondary'}>
           {roleMap.get(user.id) ?? getLabel('admin.usersTable.defaultRole')}
         </Badge>
       </td>

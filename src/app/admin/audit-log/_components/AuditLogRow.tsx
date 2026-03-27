@@ -1,6 +1,6 @@
 import type { ModerationAction, Profile } from '@/lib/db';
 
-import { Badge } from '../../_components/Badge';
+import { Badge } from '@/components/ui/badge';
 import { TruncatedText } from '../../_components/TruncatedText';
 import { formatDateTime } from '../../_lib/date';
 import { resolveDisplayName } from '../../_lib/display-name';
@@ -23,7 +23,7 @@ export function AuditLogRow({ log, profileMap }: AuditLogRowProps) {
             log.action === 'ban'
               ? 'destructive'
               : log.action === 'unban'
-                ? 'primary'
+                ? 'default'
                 : 'secondary'
           }
         >

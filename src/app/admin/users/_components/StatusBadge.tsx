@@ -1,6 +1,6 @@
 import type { Profile } from '@/lib/db';
 
-import { Badge } from '../../_components/Badge';
+import { Badge } from '@/components/ui/badge';
 import { getLabel } from '../../_lib/labels';
 
 type StatusBadgeProps = {
@@ -25,7 +25,7 @@ export function StatusBadge({ profile }: StatusBadgeProps) {
   }
 
   return (
-    <Badge variant="primary">
+    <Badge variant="default">
       {getLabel('admin.usersTable.active')}
     </Badge>
   );
