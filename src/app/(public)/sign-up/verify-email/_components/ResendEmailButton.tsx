@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
+import { useServerAction } from '@/hooks/useServerAction';
 
 import { resendEmail } from '../_actions/resendEmail';
 
@@ -16,9 +17,13 @@ const COOLDOWN_SECONDS = 60;
 
 export function ResendEmailButton({ email }: Props) {
   const t = useTranslations('verifyEmail');
-  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [cooldown, setCooldown] = useState(0);
+
+  const { error, isLoading, execute } = useServerAction({
+    rateLimitedError: t('rateLimited'),
+    fallbackError: t('resendError'),
+  });
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -27,32 +32,18 @@ export function ResendEmailButton({ email }: Props) {
   }, [cooldown]);
 
   const handleResend = async () => {
-    setIsLoading(true);
     setMessage('');
 
-    try {
-      const result = await resendEmail(email);
+    const result = await execute(() => resendEmail(email));
 
-      if ('error' in result) {
-        switch (result.error) {
-          case 'rateLimited':
-            setMessage(t('rateLimited'));
-            break;
-          default:
-            setMessage(t('resendError'));
-        }
-      } else {
-        setMessage(t('resendSuccess'));
-        setCooldown(COOLDOWN_SECONDS);
-      }
-    } catch {
-      setMessage(t('resendError'));
+    if (!('error' in result)) {
+      setMessage(t('resendSuccess'));
+      setCooldown(COOLDOWN_SECONDS);
     }
-
-    setIsLoading(false);
   };
 
   const isDisabled = isLoading || !email || cooldown > 0;
+  const displayMessage = error || message;
 
   return (
     <div className="space-y-2">
@@ -66,7 +57,7 @@ export function ResendEmailButton({ email }: Props) {
             ? t('resendCooldown', { seconds: cooldown })
             : t('resendButton')}
       </Button>
-      {message && <p className="text-sm text-muted-foreground">{message}</p>}
+      {displayMessage && <p className="text-sm text-muted-foreground">{displayMessage}</p>}
     </div>
   );
 }

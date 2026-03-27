@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { FormErrorMessage } from '@/components/ui/form-error-message';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useServerAction } from '@/hooks/useServerAction';
 
 import { signIn } from '../_actions/signIn';
 
@@ -17,37 +18,20 @@ export function EmailSignInForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { error, isLoading, execute, setIsLoading } = useServerAction({
+    rateLimitedError: t('rateLimited'),
+    fallbackError: t('emailSignInError'),
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
 
-    try {
-      const result = await signIn(email, password);
+    const result = await execute(() => signIn(email, password));
 
-      if ('error' in result) {
-        switch (result.error) {
-          case 'rateLimited':
-            setError(t('rateLimited'));
-            break;
-          case 'invalidCredentials':
-            setError(t('emailSignInError'));
-            break;
-          default:
-            setError(t('emailSignInError'));
-        }
-        setIsLoading(false);
-        return;
-      }
-
+    if (!('error' in result)) {
       router.push('/mypage');
       router.refresh();
-    } catch {
-      setError(t('emailSignInError'));
-      setIsLoading(false);
     }
   };
 

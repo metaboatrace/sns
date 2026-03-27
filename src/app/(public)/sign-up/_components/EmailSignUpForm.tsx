@@ -10,6 +10,7 @@ import { FormErrorMessage } from '@/components/ui/form-error-message';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MIN_PASSWORD_LENGTH } from '@/config';
+import { useServerAction } from '@/hooks/useServerAction';
 
 import {
   getPasswordValidationError,
@@ -25,12 +26,15 @@ export function EmailSignUpForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { error, isLoading, execute, setError } = useServerAction({
+    rateLimitedError: t('rateLimited'),
+    fallbackError: t('emailSignUpError'),
+    errorMap: {},
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
     if (password !== confirmPassword) {
       setError(t('passwordMismatch'));
@@ -43,38 +47,21 @@ export function EmailSignUpForm() {
       return;
     }
 
-    setIsLoading(true);
+    const result = await execute(() => signUp(email, password));
 
-    try {
-      const result = await signUp(email, password);
-
-      if ('error' in result) {
-        const serverError = result.error;
-        if (serverError.startsWith('password:')) {
-          const key = serverError.slice('password:'.length);
-          if (isPasswordValidationErrorKey(key)) {
-            setError(tPassword(key, { minLength: MIN_PASSWORD_LENGTH }));
-          } else {
-            setError(t('emailSignUpError'));
-          }
-        } else {
-          switch (serverError) {
-            case 'rateLimited':
-              setError(t('rateLimited'));
-              break;
-            default:
-              setError(t('emailSignUpError'));
-          }
+    if ('error' in result) {
+      // Override the hook's fallback error for server-side password validation errors
+      const serverError = result.error;
+      if (serverError.startsWith('password:')) {
+        const key = serverError.slice('password:'.length);
+        if (isPasswordValidationErrorKey(key)) {
+          setError(tPassword(key, { minLength: MIN_PASSWORD_LENGTH }));
         }
-        setIsLoading(false);
-        return;
       }
-
-      router.push(`/sign-up/verify-email?email=${encodeURIComponent(email)}`);
-    } catch {
-      setError(t('emailSignUpError'));
-      setIsLoading(false);
+      return;
     }
+
+    router.push(`/sign-up/verify-email?email=${encodeURIComponent(email)}`);
   };
 
   return (
