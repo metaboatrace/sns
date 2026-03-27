@@ -14,7 +14,11 @@ export function getLabel(path: string): string {
     if (typeof current !== 'object' || current === null) {
       return path;
     }
-    current = current[key];
+    const next: string | NestedRecord | undefined = current[key];
+    if (next === undefined) {
+      return path;
+    }
+    current = next;
   }
 
   if (typeof current === 'string') {
