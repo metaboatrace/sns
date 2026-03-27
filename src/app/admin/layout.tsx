@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { getOptionalUser } from '@/lib/auth';
-import { isAdmin } from '@/lib/db/queries/user-roles';
-
+import { requireAdmin } from './_lib/auth';
 import { getLabel } from './_lib/labels';
 
 const navItems = [
@@ -19,13 +17,8 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getOptionalUser();
-
-  if (!user) {
-    notFound();
-  }
-
-  if (!(await isAdmin(user.id))) {
+  const auth = await requireAdmin();
+  if ('error' in auth) {
     notFound();
   }
 
