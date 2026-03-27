@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
 import { AuthErrorMessage } from './AuthErrorMessage';
+import { CenteredAuthContainer } from './CenteredAuthContainer';
 import { GoogleSignInButton } from './GoogleSignInButton';
 
 type Props = {
@@ -29,33 +30,27 @@ export async function AuthPageLayout({
   const t = await getTranslations(namespace);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="w-full max-w-sm px-6">
-        <h1 className="text-2xl font-semibold text-center text-foreground mb-8">
-          {t('title')}
-        </h1>
+    <CenteredAuthContainer title={t('title')}>
+      {error && <AuthErrorMessage namespace={namespace} />}
 
-        {error && <AuthErrorMessage namespace={namespace} />}
-
-        <div className="mt-4">
-          <GoogleSignInButton namespace={namespace} />
-        </div>
-
-        <div className="flex items-center gap-4 max-w-sm mx-auto my-6">
-          <div className="flex-1 border-t border-border" />
-          <span className="text-sm text-muted-foreground">{t('orDivider')}</span>
-          <div className="flex-1 border-t border-border" />
-        </div>
-
-        {emailForm}
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          {t(linkPromptKey)}{' '}
-          <Link href={linkHref} className="text-primary hover:underline">
-            {t(linkLabelKey)}
-          </Link>
-        </p>
+      <div className="mt-4">
+        <GoogleSignInButton namespace={namespace} />
       </div>
-    </div>
+
+      <div className="flex items-center gap-4 max-w-sm mx-auto my-6">
+        <div className="flex-1 border-t border-border" />
+        <span className="text-sm text-muted-foreground">{t('orDivider')}</span>
+        <div className="flex-1 border-t border-border" />
+      </div>
+
+      {emailForm}
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        {t(linkPromptKey)}{' '}
+        <Link href={linkHref} className="text-primary hover:underline">
+          {t(linkLabelKey)}
+        </Link>
+      </p>
+    </CenteredAuthContainer>
   );
 }
