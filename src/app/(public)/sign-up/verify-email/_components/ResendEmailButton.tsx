@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 
+import { Button } from '@/components/ui/button';
+
 import { resendEmail } from '../_actions/resendEmail';
 
 type Props = {
@@ -54,18 +56,17 @@ export function ResendEmailButton({ email }: Props) {
 
   return (
     <div className="space-y-2">
-      <button
+      <Button
         onClick={handleResend}
         disabled={isDisabled}
-        className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading
           ? t('resendLoading')
           : cooldown > 0
             ? t('resendCooldown', { seconds: cooldown })
             : t('resendButton')}
-      </button>
-      {message && <p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>}
+      </Button>
+      {message && <p className="text-sm text-muted-foreground">{message}</p>}
     </div>
   );
 }

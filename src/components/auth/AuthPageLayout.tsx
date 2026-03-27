@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
-import { AuthErrorMessage } from '@/components/auth/AuthErrorMessage';
-import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { AuthErrorMessage } from './AuthErrorMessage';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 type Props = {
   /** i18n namespace: 'signIn' | 'signUp' */
@@ -29,9 +29,9 @@ export async function AuthPageLayout({
   const t = await getTranslations(namespace);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-sm px-6">
-        <h1 className="text-2xl font-semibold text-center text-black dark:text-zinc-50 mb-8">
+        <h1 className="text-2xl font-semibold text-center text-foreground mb-8">
           {t('title')}
         </h1>
 
@@ -42,16 +42,16 @@ export async function AuthPageLayout({
         </div>
 
         <div className="flex items-center gap-4 max-w-sm mx-auto my-6">
-          <div className="flex-1 border-t border-zinc-200 dark:border-zinc-700" />
-          <span className="text-sm text-zinc-500 dark:text-zinc-400">{t('orDivider')}</span>
-          <div className="flex-1 border-t border-zinc-200 dark:border-zinc-700" />
+          <div className="flex-1 border-t border-border" />
+          <span className="text-sm text-muted-foreground">{t('orDivider')}</span>
+          <div className="flex-1 border-t border-border" />
         </div>
 
         {emailForm}
 
-        <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           {t(linkPromptKey)}{' '}
-          <Link href={linkHref} className="text-blue-600 dark:text-blue-400 hover:underline">
+          <Link href={linkHref} className="text-primary hover:underline">
             {t(linkLabelKey)}
           </Link>
         </p>

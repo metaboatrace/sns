@@ -56,10 +56,10 @@ export function GoogleSignInButton({ namespace = 'signIn' }: Props) {
     <button
       onClick={handleSignIn}
       disabled={isLoading}
-      className="flex items-center justify-center gap-3 w-full max-w-sm mx-auto px-6 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-sm hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center justify-center gap-3 w-full max-w-sm mx-auto px-6 py-3 bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <GoogleIcon className="w-5 h-5" />
-      <span className="text-sm font-medium text-black dark:text-zinc-50">
+      <span className="text-sm font-medium text-foreground">
         {isLoading ? t('googleButtonLoading') : t('googleButton')}
       </span>
     </button>
