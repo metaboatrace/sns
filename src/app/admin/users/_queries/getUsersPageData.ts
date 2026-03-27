@@ -34,12 +34,12 @@ export async function getUsersPageData(page: number): Promise<UsersPageData> {
 
   const userIds = users.map((u) => u.id);
 
-  const profileMap = await fetchProfileMap(userIds);
-
-  const roles =
+  const [profileMap, roles] = await Promise.all([
+    fetchProfileMap(userIds),
     userIds.length > 0
-      ? await db.select().from(userRoles).where(inArray(userRoles.userId, userIds))
-      : [];
+      ? db.select().from(userRoles).where(inArray(userRoles.userId, userIds))
+      : Promise.resolve([]),
+  ]);
   const roleMap = new Map(roles.map((r) => [r.userId, r.role]));
 
   return { users, profileMap, roleMap, currentPage, totalPages };
