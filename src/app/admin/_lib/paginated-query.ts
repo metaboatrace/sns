@@ -29,22 +29,17 @@ export async function fetchPaginatedLogPage<R extends Record<string, unknown>>(
   page: number,
   extractUserIds: (logs: R[]) => string[],
 ): Promise<PaginatedLogResult<R>> {
-  const { limit, offset } = getPaginationData(page, 0);
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(table);
+  const totalCount = Number(countResult[0].count);
 
-  const [countResult, logs] = await Promise.all([
-    db.select({ count: sql<number>`count(*)` }).from(table),
-    db
-      .select()
-      .from(table)
-      .orderBy(desc(orderByColumn))
-      .limit(limit)
-      .offset(offset) as Promise<R[]>,
-  ]);
+  const { currentPage, totalPages, limit, offset } = getPaginationData(page, totalCount);
 
-  const { currentPage, totalPages } = getPaginationData(
-    page,
-    Number(countResult[0].count),
-  );
+  const logs = await db
+    .select()
+    .from(table)
+    .orderBy(desc(orderByColumn))
+    .limit(limit)
+    .offset(offset) as R[];
 
   const userIds = extractUserIds(logs);
   const profileMap = await fetchProfileMap(userIds);
