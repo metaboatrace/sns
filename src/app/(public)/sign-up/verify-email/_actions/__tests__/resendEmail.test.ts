@@ -54,13 +54,15 @@ describe('resendEmail', () => {
     expect(result).toEqual({ error: 'resendFailed' });
   });
 
-  it('passes empty email to Supabase (server-side validation)', async () => {
-    mockResend.mockResolvedValue({ error: { message: 'Invalid email' } });
+  it('returns invalidEmail for empty email', async () => {
     const result = await resendEmail('');
-    expect(result).toEqual({ error: 'resendFailed' });
-    expect(mockResend).toHaveBeenCalledWith({
-      type: 'signup',
-      email: '',
-    });
+    expect(result).toEqual({ error: 'invalidEmail' });
+    expect(mockResend).not.toHaveBeenCalled();
+  });
+
+  it('returns invalidEmail for malformed email', async () => {
+    const result = await resendEmail('not-an-email');
+    expect(result).toEqual({ error: 'invalidEmail' });
+    expect(mockResend).not.toHaveBeenCalled();
   });
 });
