@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { useConfirmationAction } from '../useConfirmationAction';
 
-import type { AdminActionResult } from '../../_lib/types';
+import type { ActionResult } from '@/lib/actions/types';
 
 describe('useConfirmationAction', () => {
   // --- Initial state ---
@@ -56,7 +56,7 @@ describe('useConfirmationAction', () => {
       result.current.open();
     });
 
-    const successAction = async (): Promise<AdminActionResult> => ({ success: true });
+    const successAction = async (): Promise<ActionResult> => ({ success: true });
 
     await act(async () => {
       await result.current.execute(successAction);
@@ -72,7 +72,7 @@ describe('useConfirmationAction', () => {
   it('should set translated error message for known error keys', async () => {
     const { result } = renderHook(() => useConfirmationAction());
 
-    const failAction = async (): Promise<AdminActionResult> => ({
+    const failAction = async (): Promise<ActionResult> => ({
       error: 'unauthorized',
     });
 
@@ -91,7 +91,7 @@ describe('useConfirmationAction', () => {
   it('should fall back to raw error key when label is not found', async () => {
     const { result } = renderHook(() => useConfirmationAction());
 
-    const failAction = async (): Promise<AdminActionResult> => ({
+    const failAction = async (): Promise<ActionResult> => ({
       error: 'unknownErrorKey',
     });
 
@@ -109,7 +109,7 @@ describe('useConfirmationAction', () => {
   it('should set unexpected error message when action throws', async () => {
     const { result } = renderHook(() => useConfirmationAction());
 
-    const throwingAction = async (): Promise<AdminActionResult> => {
+    const throwingAction = async (): Promise<ActionResult> => {
       throw new Error('network failure');
     };
 
@@ -128,7 +128,7 @@ describe('useConfirmationAction', () => {
     const { result } = renderHook(() => useConfirmationAction());
 
     // First: set an error
-    const failAction = async (): Promise<AdminActionResult> => ({
+    const failAction = async (): Promise<ActionResult> => ({
       error: 'failedToBan',
     });
     await act(async () => {
@@ -137,7 +137,7 @@ describe('useConfirmationAction', () => {
     expect(result.current.error).not.toBeNull();
 
     // Second: succeed - error should be cleared
-    const successAction = async (): Promise<AdminActionResult> => ({ success: true });
+    const successAction = async (): Promise<ActionResult> => ({ success: true });
     await act(async () => {
       await result.current.execute(successAction);
     });

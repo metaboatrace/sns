@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { getLabel } from '../_lib/labels';
 
-import type { AdminActionResult } from '../_lib/types';
+import type { ActionResult } from '@/lib/actions/types';
 
 type UseConfirmationActionReturn = {
   isOpen: boolean;
@@ -10,7 +10,7 @@ type UseConfirmationActionReturn = {
   error: string | null;
   open: () => void;
   close: () => void;
-  execute: (action: () => Promise<AdminActionResult>) => Promise<void>;
+  execute: (action: () => Promise<ActionResult>) => Promise<void>;
   setError: (error: string | null) => void;
 };
 
@@ -30,7 +30,7 @@ export function useConfirmationAction(): UseConfirmationActionReturn {
     setError(null);
   }, []);
 
-  const execute = useCallback(async (action: () => Promise<AdminActionResult>) => {
+  const execute = useCallback(async (action: () => Promise<ActionResult>) => {
     setIsPending(true);
     setError(null);
 
