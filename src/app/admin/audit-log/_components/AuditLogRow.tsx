@@ -1,6 +1,8 @@
 import type { ModerationAction, Profile } from '@/lib/db';
 
 import { Badge } from '@/components/ui/badge';
+import { DataTableCell } from '../../_components/DataTableCell';
+import { DataTableRow } from '../../_components/DataTableRow';
 import { TruncatedText } from '../../_components/TruncatedText';
 import { formatDateTime } from '../../_lib/date';
 import { resolveDisplayName } from '../../_lib/display-name';
@@ -15,9 +17,9 @@ export function AuditLogRow({ log, profileMap }: AuditLogRowProps) {
   const targetDisplay = resolveDisplayName(profileMap, log.targetId);
 
   return (
-    <tr key={log.id} className="border-t border-border">
-      <td className="px-4 py-3">{actorDisplay}</td>
-      <td className="px-4 py-3">
+    <DataTableRow>
+      <DataTableCell>{actorDisplay}</DataTableCell>
+      <DataTableCell>
         <Badge
           variant={
             log.action === 'ban'
@@ -29,15 +31,15 @@ export function AuditLogRow({ log, profileMap }: AuditLogRowProps) {
         >
           {log.action}
         </Badge>
-      </td>
-      <td className="px-4 py-3">{targetDisplay}</td>
-      <td className="px-4 py-3">
+      </DataTableCell>
+      <DataTableCell>{targetDisplay}</DataTableCell>
+      <DataTableCell>
         <TruncatedText text={log.reason} maxLength={50} />
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">{log.ipAddress ?? '-'}</td>
-      <td className="px-4 py-3 text-muted-foreground">
+      </DataTableCell>
+      <DataTableCell muted>{log.ipAddress ?? '-'}</DataTableCell>
+      <DataTableCell muted>
         {formatDateTime(log.createdAt)}
-      </td>
-    </tr>
+      </DataTableCell>
+    </DataTableRow>
   );
 }

@@ -1,6 +1,8 @@
 import type { Profile, UserActivityLog } from '@/lib/db';
 
 import { Badge } from '@/components/ui/badge';
+import { DataTableCell } from '../../_components/DataTableCell';
+import { DataTableRow } from '../../_components/DataTableRow';
 import { TruncatedText } from '../../_components/TruncatedText';
 import { formatDateTime } from '../../_lib/date';
 import { resolveDisplayName } from '../../_lib/display-name';
@@ -16,21 +18,21 @@ export function ActivityLogRow({ log, profileMap }: ActivityLogRowProps) {
   const displayMetadata = metadataStr === '{}' ? null : metadataStr;
 
   return (
-    <tr key={log.id} className="border-t border-border">
-      <td className="px-4 py-3">{userDisplay}</td>
-      <td className="px-4 py-3">
+    <DataTableRow>
+      <DataTableCell>{userDisplay}</DataTableCell>
+      <DataTableCell>
         <Badge variant={log.action === 'login' ? 'default' : 'secondary'}>
           {log.action}
         </Badge>
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">{log.targetType ?? '-'}</td>
-      <td className="px-4 py-3 text-muted-foreground">{log.targetId ?? '-'}</td>
-      <td className="px-4 py-3">
+      </DataTableCell>
+      <DataTableCell muted>{log.targetType ?? '-'}</DataTableCell>
+      <DataTableCell muted>{log.targetId ?? '-'}</DataTableCell>
+      <DataTableCell>
         <TruncatedText text={displayMetadata} maxLength={60} className="text-xs text-muted-foreground" />
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">
+      </DataTableCell>
+      <DataTableCell muted>
         {formatDateTime(log.createdAt)}
-      </td>
-    </tr>
+      </DataTableCell>
+    </DataTableRow>
   );
 }

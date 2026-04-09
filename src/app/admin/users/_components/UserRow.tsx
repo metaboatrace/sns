@@ -3,6 +3,8 @@ import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/lib/db';
 
 import { Badge } from '@/components/ui/badge';
+import { DataTableCell } from '../../_components/DataTableCell';
+import { DataTableRow } from '../../_components/DataTableRow';
 import { formatDate } from '../../_lib/date';
 import { getLabel } from '../../_lib/labels';
 
@@ -23,25 +25,25 @@ export function UserRow({ user, profileMap, roleMap, currentUserId }: UserRowPro
   const isCurrentUser = currentUserId === user.id;
 
   return (
-    <tr key={user.id} className="border-t border-border">
-      <td className="px-4 py-3">{user.email ?? '-'}</td>
-      <td className="px-4 py-3">{profile?.username ?? '-'}</td>
-      <td className="px-4 py-3">
+    <DataTableRow>
+      <DataTableCell>{user.email ?? '-'}</DataTableCell>
+      <DataTableCell>{profile?.username ?? '-'}</DataTableCell>
+      <DataTableCell>
         <Badge variant={roleMap.get(user.id) === 'admin' ? 'default' : 'secondary'}>
           {roleMap.get(user.id) ?? getLabel('admin.usersTable.defaultRole')}
         </Badge>
-      </td>
-      <td className="px-4 py-3">
+      </DataTableCell>
+      <DataTableCell>
         <StatusBadge profile={profile} />
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">
+      </DataTableCell>
+      <DataTableCell muted>
         {user.created_at ? formatDate(user.created_at) : '-'}
-      </td>
-      <td className="px-4 py-3">
+      </DataTableCell>
+      <DataTableCell>
         {!isCurrentUser && profile && (
           isBanned ? <UnbanButton userId={user.id} /> : <BanButton userId={user.id} />
         )}
-      </td>
-    </tr>
+      </DataTableCell>
+    </DataTableRow>
   );
 }
