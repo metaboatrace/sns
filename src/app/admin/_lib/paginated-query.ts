@@ -6,7 +6,7 @@ import { db } from '@/lib/db';
 import type { Profile } from '@/lib/db';
 import { fetchProfileMap } from '@/lib/db/queries/profiles';
 
-import { getPaginationData } from './pagination';
+import { DEFAULT_PAGE_SIZE } from './pagination';
 
 export type PaginatedLogResult<T> = {
   logs: T[];
@@ -29,17 +29,22 @@ export async function fetchPaginatedLogPage<R extends Record<string, unknown>>(
   page: number,
   extractUserIds: (logs: R[]) => string[],
 ): Promise<PaginatedLogResult<R>> {
-  const countResult = await db.select({ count: sql<number>`count(*)` }).from(table);
+  const pageSize = DEFAULT_PAGE_SIZE;
+  const offset = (Math.max(1, page) - 1) * pageSize;
+
+  const [countResult, logs] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(table),
+    db
+      .select()
+      .from(table)
+      .orderBy(desc(orderByColumn))
+      .limit(pageSize)
+      .offset(offset) as Promise<R[]>,
+  ]);
+
   const totalCount = Number(countResult[0].count);
-
-  const { currentPage, totalPages, limit, offset } = getPaginationData(page, totalCount);
-
-  const logs = await db
-    .select()
-    .from(table)
-    .orderBy(desc(orderByColumn))
-    .limit(limit)
-    .offset(offset) as R[];
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const currentPage = Math.min(Math.max(1, page), totalPages);
 
   const userIds = extractUserIds(logs);
   const profileMap = await fetchProfileMap(userIds);
