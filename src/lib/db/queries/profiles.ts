@@ -1,27 +1,33 @@
+import { cache } from 'react';
 import { eq, inArray } from 'drizzle-orm';
 import { db, profiles } from '@/lib/db';
 import type { Profile } from '@/lib/db';
+
+/**
+ * React.cache()-wrapped profile fetcher.
+ * Within a single server render pass, multiple calls with the same userId
+ * will reuse the first result, eliminating duplicate DB queries.
+ */
+const getCachedProfile = cache(async (userId: string): Promise<Profile | undefined> => {
+  const [profile] = await db.select().from(profiles).where(eq(profiles.id, userId)).limit(1);
+  return profile;
+});
 
 /**
  * Fetch a full profile by user ID.
  * Returns undefined if no profile exists.
  */
 export async function getProfileByUserId(userId: string): Promise<Profile | undefined> {
-  const [profile] = await db.select().from(profiles).where(eq(profiles.id, userId)).limit(1);
-  return profile;
+  return getCachedProfile(userId);
 }
 
 /**
  * Check whether a profile exists for the given user ID.
- * Uses a minimal select for efficiency.
+ * Derives the result from the cached full profile fetch.
  */
 export async function hasProfile(userId: string): Promise<boolean> {
-  const [row] = await db
-    .select({ id: profiles.id })
-    .from(profiles)
-    .where(eq(profiles.id, userId))
-    .limit(1);
-  return !!row;
+  const profile = await getCachedProfile(userId);
+  return !!profile;
 }
 
 /**
@@ -38,12 +44,9 @@ export async function fetchProfileMap(userIds: string[]): Promise<Map<string, Pr
 /**
  * Check whether a user is banned.
  * Returns true if the profile exists and has a non-null bannedAt timestamp.
+ * Derives the result from the cached full profile fetch.
  */
 export async function isUserBanned(userId: string): Promise<boolean> {
-  const [row] = await db
-    .select({ bannedAt: profiles.bannedAt })
-    .from(profiles)
-    .where(eq(profiles.id, userId))
-    .limit(1);
-  return !!row?.bannedAt;
+  const profile = await getCachedProfile(userId);
+  return !!profile?.bannedAt;
 }
